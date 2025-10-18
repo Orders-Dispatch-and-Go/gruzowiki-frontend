@@ -1,35 +1,42 @@
-import { useState } from "react";
-import viteLogo from "/vite.svg";
-import reactLogo from "./assets/react.svg";
+// src/App.tsx
+import React from "react";
 import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+// import { RequireAuth } from "./components/RequireAuth";
+import HomeRedirect from "./components/HomeRedirect";
 
-function App() {
-	const [count, setCount] = useState(0);
+export default function App(): React.JSX.Element {
+  return (
+	<Router>
+	<Routes>
+		{/* Автоматический редирект с / на /login */}
+        <Route path="/" element={< HomeRedirect />} />
+		
 
-	return (
-		<>
-			<div>
-				<a href="https://vite.dev" target="_blank" rel="noopener">
-					<img src={viteLogo} className="logo" alt="Vite logo" />
-				</a>
-				<a href="https://react.dev" target="_blank" rel="noopener">
-					<img src={reactLogo} className="logo react" alt="React logo" />
-				</a>
-			</div>
-			<h1>Vite + React</h1>
-			<div className="card">
-				<button type="button" onClick={() => setCount((count) => count + 1)}>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<p className="read-the-docs">
-				Click on the Vite and React logos to learn more
-			</p>
-		</>
-	);
+
+		{/* Публичные страницы */}
+        <Route path="/login" element={<LoginPage />} />
+        {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/register" element={<RegisterPage />} /> */}
+
+		{/* Main Layout contains header for authorized users -- needs RequireAuth */}
+        {/* <Route
+          path="/"
+          element={
+            <RequireAuth>
+              <MainLayout />
+            </RequireAuth>
+          }
+        >
+          <Route index element={<HomePage />} />
+          <Route path="my-route" element={<RouteBuilder />} />
+          <Route path="routes/:routeId" element={<RouteResult />} />
+          <Route path="ready-routes" element={<ReadyRoutesPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route> */}
+	</Routes>
+	</Router>
+  );
 }
 
-export default App;
