@@ -1,10 +1,13 @@
 // src/App.tsx
 import React from "react";
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 // import { RequireAuth } from "./components/RequireAuth";
 import HomeRedirect from "./components/HomeRedirect";
+import AuthLayout from "./layout/AuthLayout";
+import RegisterPage from "./pages/RegisterPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 export default function App(): React.JSX.Element {
   return (
@@ -12,6 +15,13 @@ export default function App(): React.JSX.Element {
 	<Routes>
 		{/* Автоматический редирект с / на /login */}
         <Route path="/" element={< HomeRedirect />} />
+
+		<Route element={ <AuthLayout><Outlet /></AuthLayout>} >
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="*" element={<LoginPage />} />
+        </Route>
 		
 
 
