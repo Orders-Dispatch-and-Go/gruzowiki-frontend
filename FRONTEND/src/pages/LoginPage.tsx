@@ -63,7 +63,6 @@ export default function LoginPage(): React.JSX.Element {
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: 24 }}>
       <div style={{ width: 420 }}>
-        <AuthHeader />
 
         <Space direction="vertical" style={{ width: "100%" }}>
           {/* Показываем разные баннеры в зависимости от состояния */}

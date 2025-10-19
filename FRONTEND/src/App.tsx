@@ -16,19 +16,13 @@ export default function App(): React.JSX.Element {
 		{/* Автоматический редирект с / на /login */}
         <Route path="/" element={< HomeRedirect />} />
 
-		<Route element={ <AuthLayout><Outlet /></AuthLayout>} >
+		<Route element={ <AuthLayout/>} >
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<LoginPage />} />
         </Route>
 		
-
-
-		{/* Публичные страницы */}
-        <Route path="/login" element={<LoginPage />} />
-        {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/register" element={<RegisterPage />} /> */}
 
 		{/* Main Layout contains header for authorized users -- needs RequireAuth */}
         {/* <Route

@@ -1,19 +1,15 @@
-// src/layout/AuthLayout.tsx
 import React from "react";
+import { Outlet } from "react-router-dom";
 import { AuthHeader } from "../components/AuthHeader";
+import "./AuthLayout.css";
 
-interface AuthLayoutProps {
-  children: React.ReactNode;
-  title?: string;
-}
-
-export default function AuthLayout({ children }: AuthLayoutProps): React.JSX.Element {
+export default function AuthLayout(): React.JSX.Element {
   return (
-    <div style={{ display: "flex", justifyContent: "center", padding: 24, minHeight: "100vh", alignItems: "center" }}>
-      <div style={{ width: 420 }}>
-        <AuthHeader />
-        {children}
-      </div>
+    <div className="auth-layout">
+      <AuthHeader />
+      <main className="auth-layout__main">
+        <Outlet />
+      </main>
     </div>
   );
 }
