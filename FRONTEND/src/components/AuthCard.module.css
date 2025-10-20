@@ -1,0 +1,6 @@
+/* src/components/AuthCard.module.css */
+.authCard {
+  width: 100%;
+  max-width: 420px;
+  min-width: 320px;
+}

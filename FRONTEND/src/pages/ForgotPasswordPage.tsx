@@ -1,35 +1,110 @@
 // src/pages/ForgotPasswordPage.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Checkbox, Alert, Space, Typography } from "antd";
+import { Form, Input, Button, Alert, Space, Typography, Card, Layout, Flex } from "antd";
+import { AuthCard } from "../components/AuthCard";
+import { AuthTabs } from "../components/AuthTabs";
 
 const { Text } = Typography;
+const { Content } = Layout;
 
 export default function ForgotPasswordPage(): React.JSX.Element {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const onTabChange = (key: string) => {
+    navigate(key);
+  };
+
   const onFinish = async (values: any) => {
-    // TODO: подключи API восстановления пароля
     console.log("Forgot password:", values);
     setLoading(true);
+    setServerError(null);
     
-    // Имитация API запроса
-    setTimeout(() => {
+    try {
+      // TODO: подключи API восстановления пароля
+      // Имитация API запроса
+      setTimeout(() => {
+        setLoading(false);
+        setSuccessMessage("Инструкции по восстановлению пароля отправлены на email");
+        // После успешной отправки переходим на страницу с кодом подтверждения
+        setTimeout(() => {
+          navigate("/reset-password", { state: { email: values.email } });
+        }, 2000);
+      }, 1500);
+    } catch (error) {
       setLoading(false);
-      setSuccessMessage("Инструкции по восстановлению отправлены на email");
-    }, 1500);
+      setServerError("Ошибка при отправке запроса");
+    }
+  };
+
+  const handleBack = () => {
+    navigate("/login");
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Text type="secondary" >
-        Появится потом =)
-        </Text>
-        <Text type="secondary">Нет аккаунта? <span style={{ color: "#1890ff", cursor: "pointer" }} onClick={() => navigate("/register")}>Регистрация</span></Text>
-    </div>
+    <Layout>
+      <Content>
+        <Flex justify="center" align="center">
+          <AuthCard>
+            {/* Табы */}
+            <AuthTabs activeKey="/forgot-password" onTabChange={onTabChange} />
+            
+            {/* Форма восстановления пароля */}
+            <Space direction="vertical" style={{ width: "100%" }} size="middle">
+              {serverError && <Alert type="error" message="Ошибка" description={serverError} showIcon />}
+              {successMessage && <Alert type="success" message={successMessage} showIcon />}
+
+              <Text>
+                Введите email, указанный при регистрации. Мы отправим вам код подтверждения для восстановления пароля.
+              </Text>
+
+              <Form
+                layout="vertical"
+                onFinish={onFinish}
+                requiredMark={false}
+              >
+                <Form.Item
+                  label="Email"
+                  name="email"
+                  rules={[
+                    { required: true, message: "Введите email" },
+                    { type: "email", message: "Введите корректный email" },
+                  ]}
+                >
+                  <Input placeholder="Введите ваш email" size="large" />
+                </Form.Item>
+
+                <Form.Item style={{ marginBottom: 16 }}>
+                  <Button 
+                    type="primary" 
+                    htmlType="submit" 
+                    block 
+                    loading={loading} 
+                    size="large" 
+                    style={{ backgroundColor: "orange", borderColor: "orange" }}
+                  >
+                    Отправить новый пароль
+                  </Button>
+                </Form.Item>
+
+                <Form.Item style={{ marginBottom: 0 }}>
+                  <Button 
+                    type="default" 
+                    block 
+                    size="large" 
+                    onClick={handleBack}
+                  >
+                    Назад
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Space>
+          </AuthCard>
+        </Flex>
+      </Content>
+    </Layout>
   );
 }

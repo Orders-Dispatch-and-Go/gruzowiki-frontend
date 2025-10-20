@@ -8,6 +8,7 @@ import HomeRedirect from "./components/HomeRedirect";
 import AuthLayout from "./layout/AuthLayout";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import UserProfilePage from "./pages/UserProfilePage";
 
 export default function App(): React.JSX.Element {
   return (
@@ -21,6 +22,7 @@ export default function App(): React.JSX.Element {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<LoginPage />} />
+          <Route path="/profile" element={<UserProfilePage />} />
         </Route>
 		
 

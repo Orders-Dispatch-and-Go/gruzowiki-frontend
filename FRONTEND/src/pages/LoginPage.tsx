@@ -1,4 +1,6 @@
+// src/pages/LoginPage.tsx
 import React, { useState } from "react";
+import { AuthCard } from "../components/AuthCard";
 import { 
   Form, 
   Input, 
@@ -6,16 +8,17 @@ import {
   Checkbox, 
   Alert, 
   Space, 
-  Typography, 
-  Card, 
+  // Card, 
   Layout,
-  Flex  
+  Flex,
+  Row,
+  Col
 } from "antd";
 import { doLogin } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { AuthTabs } from "../components/AuthTabs";
 
-const { Text, Title } = Typography;
 const { Content } = Layout;
 
 type LoginFormValues = {
@@ -32,6 +35,10 @@ export default function LoginPage(): React.JSX.Element {
   const [serverError, setServerError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const onTabChange = (key: string) => {
+    navigate(key);
+  };
 
   const onFinish = async (values: LoginFormValues) => {
     setServerError(null);
@@ -68,34 +75,31 @@ export default function LoginPage(): React.JSX.Element {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh", backgroundColor: "#f5f5f5" }}>
+    <Layout>
       <Content>
         <Flex 
           justify="center" 
           align="center" 
-          style={{ height: "100vh", padding: "20px" }}
         >
-          <Card 
-            title={<Title level={2} style={{ textAlign: "center", margin: 0 }}>Вход в систему</Title>}
-            style={{ 
-              width: "100%", 
-              maxWidth: 400,
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
-            }}
-          >
+          <AuthCard >
+            {/* Табы */}
+            <AuthTabs activeKey="/login" onTabChange={onTabChange} />
+            
+            {/* Форма входа */}
             <Space direction="vertical" style={{ width: "100%" }} size="middle">
               {emailError && <Alert type="error" message="Неверный email" description={emailError} showIcon />}
               {serverError && <Alert type="error" message="Ошибка авторизации" description={serverError} showIcon />}
               {successMessage && <Alert type="success" message={successMessage} showIcon />}
 
               <Form
+                className="auth-form"
                 layout="vertical"
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
                 requiredMark={false}
               >
                 <Form.Item
-                  label="Email"
+                  // label="Email"
                   name="email"
                   validateStatus={emailError ? "error" : undefined}
                   help={emailError ?? undefined}
@@ -108,41 +112,34 @@ export default function LoginPage(): React.JSX.Element {
                 </Form.Item>
 
                 <Form.Item
-                  label="Пароль"
+                  // label="Пароль"
                   name="password"
                   rules={[{ required: true, message: "Введите пароль" }]}
                 >
                   <Input.Password placeholder="Пароль" size="large" />
                 </Form.Item>
 
-                <Form.Item name="remember" valuePropName="checked">
-                  <Checkbox>Запомнить меня</Checkbox>
-                </Form.Item>
+                <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+                  <Col>
+                    <Form.Item name="remember" valuePropName="checked" style={{ marginBottom: 0 }}>
+                      <Checkbox>Запомнить меня</Checkbox>
+                    </Form.Item>
+                  </Col>
+                  <Col>
+                    <Link to="/forgot-password" >
+                      Забыли пароль?
+                    </Link>
+                  </Col>
+                </Row>
 
-                <Form.Item style={{ marginBottom: 16 }}>
-                  <Button type="primary" htmlType="submit" block loading={loading} size="large">
+                <Form.Item style={{ marginBottom: 0 }}>
+                  <Button type="primary" htmlType="submit" block loading={loading} size="large" style={{ backgroundColor: "orange", borderColor: "orange" }} >
                     Войти
                   </Button>
                 </Form.Item>
               </Form>
-
-              <Flex justify="space-between" align="center">
-                <Text 
-                  type="secondary" 
-                  onClick={() => navigate("/forgot-password")} 
-                  style={{ cursor: "pointer", fontSize: "14px" }}
-                >
-                  Забыли пароль?
-                </Text>
-                <Text type="secondary" style={{ fontSize: "14px" }}>
-                  Нет аккаунта?{" "}
-                  <Link to="/register" style={{ fontWeight: 500 }}>
-                    Регистрация
-                  </Link>
-                </Text>
-              </Flex>
             </Space>
-          </Card>
+          </AuthCard>
         </Flex>
       </Content>
     </Layout>
