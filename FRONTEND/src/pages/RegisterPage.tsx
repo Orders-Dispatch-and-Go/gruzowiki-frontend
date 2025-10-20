@@ -30,7 +30,6 @@ export default function RegisterPage(): React.JSX.Element {
         <Text type="secondary" >
         Появится попозже =)
         </Text>
-        <Text type="secondary">Нет аккаунта? <span style={{ color: "#1890ff", cursor: "pointer" }} onClick={() => navigate("/register")}>Регистрация</span></Text>
-    </div>
+      </div>
   );
 }

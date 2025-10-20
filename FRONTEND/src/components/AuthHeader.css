@@ -3,7 +3,7 @@
   width: 100%;
   /* clamp(min, preferred, max) — гарантирует адекватную высоту на очень маленьких/больших экранах */
   height: clamp(160px, 30vh, 360px);
-  margin-bottom: 24px;
+  /* margin-bottom: 24px; */
   background-color: #212d3b;
 
   display: flex;
@@ -24,14 +24,14 @@
 }
 
 .auth-header__image_truck {
-  width: 80px; /* можешь поменять под себя */
+  width: 80px;
   height: auto;
   /* далее под вопросом */
   display: block;
 }
 
 .auth-header__image_logo {
-  width: 250px; /* можешь поменять под себя */
+  width: 250px; 
   height: auto;
   /* далее под вопросом */
   display: block;

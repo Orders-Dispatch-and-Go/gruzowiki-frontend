@@ -1,0 +1,39 @@
+/* Внешний контейнер для формы — центрирована по горизонтали, немного отступ сверху */
+.login-page__wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;  /* форма по центру */
+  padding-top: 24px;        /* отступ сверху, чтобы форма была ниже заголовка */
+  box-sizing: border-box;
+}
+
+/* Карточка формы */
+.login-card {
+  width: 420px;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  /* если хочешь, чтобы сама карточка была прозрачной на темном фоне — не ставим background.
+     Если хочешь белую карточку — раскомментируй следующую строку: */
+  /* background: rgba(255,255,255,0.03); */ 
+  padding: 0; /* AntD Form сам содержит отступы внутри элементов */
+}
+
+/* нижняя строка (забыли пароль / регистрация) */
+.login-card__footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+/* оформление ссылки регистрация */
+.login-card__link {
+  color: #1890ff;
+  cursor: pointer;
+}
+
+/* Немного уменьшим ширину полей на очень узких экранах */
+@media (max-width: 480px) {
+  .login-card {
+    width: 100%;
+  }
+}
