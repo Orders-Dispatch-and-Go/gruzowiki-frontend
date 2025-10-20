@@ -1,6 +1,5 @@
 // src/App.tsx
 import React from "react";
-import "./App.css";
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 // import { RequireAuth } from "./components/RequireAuth";
