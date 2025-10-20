@@ -49,8 +49,6 @@ export default function ForgotPasswordPage(): React.JSX.Element {
       <Content>
         <Flex justify="center" align="center">
           <AuthCard>
-            {/* Табы */}
-            <AuthTabs activeKey="/forgot-password" onTabChange={onTabChange} />
             
             {/* Форма восстановления пароля */}
             <Space direction="vertical" style={{ width: "100%" }} size="middle">
