@@ -22,8 +22,26 @@ type AuthContextType = AuthState & {
   logout: () => void;
   setLoading: (v: boolean) => void;
 };
+const defaultAuthContext: AuthContextType = {
+  user: null,
+  token: null,
+  isAuthenticated: false,
+  loading: false,
+  login: () => {
+    throw new Error("AuthProvider not initialized");
+  },
+  logout: () => {
+    throw new Error("AuthProvider not initialized");
+  },
+  setLoading: () => {
+    throw new Error("AuthProvider not initialized");
+  },
+};
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>(defaultAuthContext);
+
+
+// const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const LS_KEY = "myapp_auth_v1";
 
@@ -91,9 +109,5 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export function useAuth(): AuthContextType {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used inside AuthProvider");
-  }
-  return ctx;
+  return useContext(AuthContext);
 }
