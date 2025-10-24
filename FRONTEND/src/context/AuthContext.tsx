@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import client from "../api/client"; 
 
 /**
  * Типы
@@ -18,10 +19,13 @@ type AuthState = {
 };
 
 type AuthContextType = AuthState & {
-  login: (user: User, token: string, remember?: boolean) => void;
+  login: (token: string, user?: User | null,  remember?: boolean) => void;
   logout: () => void;
   setLoading: (v: boolean) => void;
 };
+
+
+
 const defaultAuthContext: AuthContextType = {
   user: null,
   token: null,
@@ -41,17 +45,22 @@ const defaultAuthContext: AuthContextType = {
 const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
 
-// const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 const LS_KEY = "myapp_auth_v1";
+const SS_KEY = "myapp_auth_session_v1";
 
 function loadFromStorage(): { user: User | null; token: string | null } {
   try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return { user: null, token: null };
-    const parsed = JSON.parse(raw);
-    // Простейшая валидация
-    return { user: parsed.user ?? null, token: parsed.token ?? null };
+    const rawLocal = localStorage.getItem(LS_KEY);
+    if (rawLocal) {
+      const parsed = JSON.parse(rawLocal);
+      return { user: parsed.user ?? null, token: parsed.token ?? null };
+    }
+    const rawSession = sessionStorage.getItem(SS_KEY);
+    if (rawSession) {
+      const parsed = JSON.parse(rawSession);
+      return { user: parsed.user ?? null, token: parsed.token ?? null };
+    }
+    return { user: null, token: null };
   } catch {
     return { user: null, token: null };
   }
@@ -59,16 +68,20 @@ function loadFromStorage(): { user: User | null; token: string | null } {
 
 function saveToStorage(user: User | null, token: string | null, remember = true) {
   try {
-    if (!remember) {
-      // если не запоминать — ничего не сохраняем
-      return;
-    }
     const payload = JSON.stringify({ user, token });
-    localStorage.setItem(LS_KEY, payload);
+    if (remember) {
+      localStorage.setItem(LS_KEY, payload);
+      sessionStorage.removeItem(SS_KEY);
+    } else {
+      // сохраняем во временное хранилище, которое очистится при закрытии вкладки
+      sessionStorage.setItem(SS_KEY, payload);
+      localStorage.removeItem(LS_KEY);
+    }
   } catch {
     // ignore
   }
 }
+
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const initial = loadFromStorage();
@@ -76,12 +89,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(initial.token);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Устанавливаем заголовок Authorization для всех запросов axios
   useEffect(() => {
-    // если токен есть, можно (опционально) вызывать API /me чтобы проверить токен
-    // TODO: add token validation call if backend supports it
-  }, []);
+    if (token) {
+      client.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      delete client.defaults.headers.common["Authorization"];
+    }
+  }, [token]);
 
-  const login = (u: User, t: string, remember = true) => {
+  // при инициализации проверяем токен
+  useEffect(() => {
+    async function check() {
+      if (!token) return;
+      try {
+        // если у вас есть endpoint /check/token, используем его
+        const res = await client.get("/check/token");
+        // если бек вернул ok — можно обновить состояние; если нет — logout
+        // оставим проверку простую: если статус 200 — всё ок
+      } catch {
+        // токен невалиден — разлогиним
+        setUser(null);
+        setToken(null);
+        try {
+          localStorage.removeItem(LS_KEY);
+          sessionStorage.removeItem(SS_KEY);
+        } catch {}
+      }
+    }
+    check();
+  }, []); // выполняется один раз при монтировании
+
+  const login = (t: string, u: User | null = null,  remember = true) => {
     setUser(u);
     setToken(t);
     saveToStorage(u, t, remember);
@@ -92,7 +131,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(null);
     try {
       localStorage.removeItem(LS_KEY);
+      sessionStorage.removeItem(SS_KEY);
     } catch {}
+    delete client.defaults.headers.common["Authorization"];
   };
 
   const value: AuthContextType = {

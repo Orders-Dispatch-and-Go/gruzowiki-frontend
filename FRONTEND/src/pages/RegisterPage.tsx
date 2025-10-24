@@ -5,7 +5,7 @@ import { Form, Input, Button, Alert, Space, Layout, Flex } from "antd";
 import { useNavigate } from "react-router-dom";
 import { AuthTabs } from "../components/AuthTabs";
 import { useAuth } from "../context/AuthContext";
-import { doRegister, doVerifyEmail } from "../api/auth";
+import { doRegister, checkEmail } from "../api/auth";
 
 const { Content } = Layout;
 
@@ -29,7 +29,7 @@ export default function RegisterPage(): React.JSX.Element {
     setServerError(null);
     setLoading(true);
     try {
-      const res = await doVerifyEmail(email);
+      const res = await checkEmail(email);
       if (!res.ok) setServerError(res.message ?? "Ошибка отправки кода");
       else {
         setSuccessMessage("Код подтверждения отправлен на email!");

@@ -60,7 +60,7 @@ export default function LoginPage(): React.JSX.Element {
       } else {
         if (res.data?.user && res.data?.token) {
           const { user, token } = res.data;
-          login(user, token);
+          login(user, token, values.remember);
           setSuccessMessage("Успешный вход! Перенаправление...");
           setTimeout(() => navigate(redirectAfterLogin), 800);
         } else {
