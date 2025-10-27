@@ -1,7 +1,19 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-// https://vite.dev/config/
+// // https://vite.dev/config/
+// export default defineConfig({
+// 	plugins: [react()],
+// });
 export default defineConfig({
-	plugins: [react()],
-});
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/auth': {
+        target: 'http://localhost:8074',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
+})

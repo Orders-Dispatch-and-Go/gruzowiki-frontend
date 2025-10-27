@@ -9,6 +9,7 @@ export type User = {
   id: string;
   email: string;
   name?: string;
+  role?: 'shipper' | 'carrier'; 
 };
 
 type AuthState = {
@@ -105,6 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         // если у вас есть endpoint /check/token, используем его
         const res = await client.get("/check/token");
+        // TODO: Когда API заработает, обновлять информацию о пользователе включая роль
         // если бек вернул ok — можно обновить состояние; если нет — logout
         // оставим проверку простую: если статус 200 — всё ок
       } catch {
