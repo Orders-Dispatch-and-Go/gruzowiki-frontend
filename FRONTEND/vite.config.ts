@@ -10,7 +10,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/auth': {
-        target: 'http://localhost:8074',
+        target: 'http://51.250.34.151:8074',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/check': {
+        target: 'http://51.250.34.151:8074',
         changeOrigin: true,
         secure: false,
       }

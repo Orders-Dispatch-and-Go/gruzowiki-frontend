@@ -9,7 +9,7 @@ export type User = {
   id: string;
   email: string;
   name?: string;
-  role?: 'shipper' | 'carrier'; 
+  role?: 'ROLE_CONSIGNER' | 'ROLE_CARRIER';
 };
 
 type AuthState = {
