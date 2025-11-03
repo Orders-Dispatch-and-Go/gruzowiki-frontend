@@ -99,28 +99,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [token]);
 
-  // при инициализации проверяем токен
-  useEffect(() => {
-    async function check() {
-      if (!token) return;
-      try {
-        // если у вас есть endpoint /check/token, используем его
-        const res = await client.get("/check/token");
-        // TODO: Когда API заработает, обновлять информацию о пользователе включая роль
-        // если бек вернул ok — можно обновить состояние; если нет — logout
-        // оставим проверку простую: если статус 200 — всё ок
-      } catch {
-        // токен невалиден — разлогиним
-        setUser(null);
-        setToken(null);
-        try {
-          localStorage.removeItem(LS_KEY);
-          sessionStorage.removeItem(SS_KEY);
-        } catch {}
-      }
-    }
-    check();
-  }, []); // выполняется один раз при монтировании
 
   const login = (t: string, u: User | null = null,  remember = true) => {
     setUser(u);

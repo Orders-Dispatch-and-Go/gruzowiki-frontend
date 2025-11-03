@@ -226,7 +226,7 @@ export default function RegisterPage(): React.JSX.Element {
             if (loginRes.ok && loginRes.data.accessToken) {
                 // Используем реальный токен
                 login(
-                    loginRes.data.accessToken, // ← НАСТОЯЩИЙ токен
+                    loginRes.data.accessToken,
                     {
                         id: loginRes.data.id?.toString(),
                         email: registerEmail,
@@ -242,17 +242,6 @@ export default function RegisterPage(): React.JSX.Element {
                 navigate("/login");
             }
 
-            // // В RegisterPage.tsx временно:
-            // login(
-            //   "fake-token-for-testing", // временный токен для теста
-            //   {
-            //     id: (responseData as any).id?.toString() || "123", // ← используем responseData
-            //     email: registerData.email,
-            //     name: `${values.firstName} ${values.lastName}`,
-            //     role: registerData.role
-            // },
-            //   true
-            // );
         } catch {
             setServerError("Сервер недоступен");
         } finally {
