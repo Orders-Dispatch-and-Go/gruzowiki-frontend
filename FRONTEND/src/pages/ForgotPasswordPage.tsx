@@ -4,40 +4,27 @@ import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, Alert, Space, Typography, Card, Layout, Flex } from "antd";
 import { AuthCard } from "../components/AuthCard";
 import { AuthTabs } from "../components/AuthTabs";
+import { useForgotPassword } from "../hooks/useForgotPassword";
 
 const { Text } = Typography;
 const { Content } = Layout;
 
 export default function ForgotPasswordPage(): React.JSX.Element {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const {
+    loading,
+    serverError,
+    successMessage,
+    handleForgotPassword
+  } = useForgotPassword();
 
   const onTabChange = (key: string) => {
     navigate(key);
   };
 
-  const onFinish = async (values: any) => {
-    console.log("Forgot password:", values);
-    setLoading(true);
-    setServerError(null);
-    
-    try {
-      // TODO: подключи API восстановления пароля
-      // Имитация API запроса
-      setTimeout(() => {
-        setLoading(false);
-        setSuccessMessage("Инструкции по восстановлению пароля отправлены на email");
-        // После успешной отправки переходим на страницу с кодом подтверждения
-        setTimeout(() => {
-          navigate("/reset-password", { state: { email: values.email } });
-        }, 2000);
-      }, 1500);
-    } catch (error) {
-      setLoading(false);
-      setServerError("Ошибка при отправке запроса");
-    }
+  const onFinish = async (values: { email: string }) => {
+    await handleForgotPassword(values.email);
   };
 
   const handleBack = () => {
