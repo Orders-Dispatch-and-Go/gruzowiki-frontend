@@ -7,18 +7,24 @@ import { Spin, Flex, Typography, Card } from "antd";
 const { Text } = Typography;
 
 export default function HomeRedirect() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (loading) return;
 
     if (isAuthenticated) {
-      navigate("/dashboard", { replace: true });
+      // Редирект в зависимости от роли пользователя
+      if (user?.role === 'ROLE_CARRIER') {
+        navigate("/carrier/main", { replace: true });
+      } else {
+        // По умолчанию на страницу грузоотправителя
+        navigate("/shipper/main", { replace: true });
+      }
     } else {
       navigate("/login", { replace: true });
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading, navigate, user]);
 
   if (loading) {
     return (

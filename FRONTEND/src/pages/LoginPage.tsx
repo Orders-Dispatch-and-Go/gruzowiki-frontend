@@ -15,9 +15,10 @@ import {
   Col
 } from "antd";
 import { doLogin } from "../api/auth";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, type User } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthTabs } from "../components/AuthTabs";
+import { usersApi } from "../api/users";
 
 const { Content } = Layout;
 
@@ -28,7 +29,6 @@ type LoginFormValues = {
 };
 
 export default function LoginPage(): React.JSX.Element {
-  const redirectAfterLogin = "/dashboard";
   const { login } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -58,11 +58,39 @@ export default function LoginPage(): React.JSX.Element {
           setServerError(res.message ?? "Неизвестная ошибка");
         }
       } else {
-        if (res.data?.user && res.data?.token) {
+        if (res.data?.token) {
           const { user, token } = res.data;
-          login(user, token, values.remember);
+          login(token, null, values.remember);
+
+          try {
+            const userResponse = await usersApi.getCurrentUser();
+          console.log("👤 Данные пользователя:", userResponse);
+          
+          // Обновляем пользователя в AuthContext
+          // Нужно добавить метод updateUser в AuthContext или перелогиниться
+          const user: User = {
+            id: userResponse.id.toString(),
+            email: userResponse.email,
+            name: `${userResponse.firstName} ${userResponse.secondName}`,
+            role: userResponse.rolesId.includes(1) ? 'ROLE_CONSIGNER' : 'ROLE_CARRIER' // нужно уточнить маппинг ролей
+          }
+
+          // Обновляем контекст с пользователем
+          login(token, user, values.remember);
+
+
           setSuccessMessage("Успешный вход! Перенаправление...");
-          setTimeout(() => navigate(redirectAfterLogin), 800);
+          // Редирект в зависимости от роли
+          let redirectTo = "/shipper/home";
+          if (user?.role === 'ROLE_CARRIER') {
+            redirectTo = "/carrier/home";
+          }
+          setTimeout(() => navigate(redirectTo), 800);
+
+        }catch (userErr) {
+           console.error("❌ Ошибка получения данных пользователя:", userErr);
+          setServerError("Ошибка загрузки данных пользователя");
+        }
         } else {
           setServerError("Некорректные данные от сервера");
         }

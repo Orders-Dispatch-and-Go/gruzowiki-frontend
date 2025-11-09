@@ -14,9 +14,9 @@ const AppHeader: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogoClick = () => {
-    if (user?.role === 'shipper') {
+    if (user?.role === 'ROLE_CONSIGNER') {
       navigate('/shipper/main');
-    } else if (user?.role === 'carrier') {
+    } else if (user?.role === 'ROLE_CARRIER') {
       navigate('/carrier/main');
     } else {
       navigate('/');
@@ -24,9 +24,9 @@ const AppHeader: React.FC = () => {
   };
 
   const handleProfileClick = () => {
-    if (user?.role === 'shipper') {
+    if (user?.role === 'ROLE_CONSIGNER') {
       navigate('/shipper/profile');
-    } else if (user?.role === 'carrier') {
+    } else if (user?.role === 'ROLE_CARRIER') {
       navigate('/carrier/profile');
     }
   };

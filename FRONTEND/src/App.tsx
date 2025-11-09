@@ -1,45 +1,63 @@
 // src/App.tsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+} from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-// import { RequireAuth } from "./components/RequireAuth";
+import { RequireAuth } from "./components/RequireAuth";
 import HomeRedirect from "./components/HomeRedirect";
 import AuthLayout from "./layout/AuthLayout";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ShipperMainPage from "./pages/ShipperMainPage";
+import MainLayout from "./layout/MainLayout";
 
 export default function App(): React.JSX.Element {
-  return (
-	<Router>
-	<Routes>
-		{/* Автоматический редирект с / на /login */}
-        <Route path="/" element={< HomeRedirect />} />
+    return (
+        <Router>
+            <Routes>
+                {/* Автоматический редирект с / на /login */}
+                <Route path="/" element={<HomeRedirect />} />
 
-		<Route element={ <AuthLayout/>} >
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="*" element={<LoginPage />} />
-        </Route>
-		
+                <Route element={<AuthLayout />}>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route
+                        path="/forgot-password"
+                        element={<ForgotPasswordPage />}
+                    />
+                    <Route path="/register" element={<RegisterPage />} />
+                </Route>
 
-		{/* Main Layout contains header for authorized users -- needs RequireAuth */}
-        {/* <Route
-          path="/"
-          element={
-            <RequireAuth>
-              <MainLayout />
-            </RequireAuth>
-          }
-        >
-          <Route index element={<HomePage />} />
-          <Route path="my-route" element={<RouteBuilder />} />
-          <Route path="routes/:routeId" element={<RouteResult />} />
-          <Route path="ready-routes" element={<ReadyRoutesPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route> */}
-	</Routes>
-	</Router>
-  );
+                {/* Маршруты для грузоотправителя */}
+                <Route
+                    path="/shipper"
+                    element={
+                        <RequireAuth>
+                            <MainLayout />
+                        </RequireAuth>
+                    }
+                >
+                    <Route path="main" element={<ShipperMainPage />} />
+                    {/* Здесь будут другие маршруты грузоотправителя */}
+                </Route>
+
+                {/* Прямые маршруты для редиректа после логина */}
+                <Route
+                    path="/shipper/main"
+                    element={
+                        <RequireAuth>
+                            <MainLayout />
+                        </RequireAuth>
+                    }
+                >
+                    <Route index element={<ShipperMainPage />} />
+                </Route>
+
+                {/* Запасной маршрут */}
+                <Route path="*" element={<HomeRedirect />} />
+            </Routes>
+        </Router>
+    );
 }
-

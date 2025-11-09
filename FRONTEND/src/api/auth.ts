@@ -15,6 +15,8 @@ type RegisterPayload = {
 };
 
 
+
+// api/auth.ts
 export async function doLogin(payload: LoginPayload) {
   try {
     const res = await client.post("/auth/sign_in", {
@@ -22,12 +24,31 @@ export async function doLogin(payload: LoginPayload) {
       password: payload.password,
     });
 
-    // Ожидаем { accessToken: "..." } согласно swagger
+    console.log("📨 Ответ от sign_in:", res.data);
+
+    // Сервер возвращает { accessToken: "..." }
+    if (res.data.accessToken) {
+      // Нужно получить данные пользователя отдельным запросом
+      // Или создать временного пользователя из того что есть
+      return { 
+        ok: true, 
+        data: {
+          token: res.data.accessToken,
+          user: {
+            id: "5", // временно, из токена видно "sub":"5"
+            email: payload.email,
+            role: 'ROLE_CARRIER' // из токена видно "ROLE_CARRIER"
+          }
+        }
+      };
+    }
+
     return { ok: true, data: res.data };
+    
   } catch (err: any) {
-    // Ошибки обрабатываем и нормализуем
+    console.error("❌ Ошибка sign_in:", err.response?.data);
+    
     if (err.response) {
-      // Сервер вернул 4xx/5xx
       return {
         ok: false,
         code: err.response.data?.code ?? "AUTH_FAIL",
@@ -35,7 +56,7 @@ export async function doLogin(payload: LoginPayload) {
         status: err.response.status,
       };
     }
-    // Network / timeout / CORS
+    
     return { ok: false, code: "NETWORK_ERROR", message: "Сервер недоступен" };
   }
 }
