@@ -13,6 +13,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ShipperMainPage from "./pages/ShipperMainPage";
 import MainLayout from "./layout/MainLayout";
+import ShipperProfilePage from "./pages/ShipperProfilePage";
 
 export default function App(): React.JSX.Element {
     return (
@@ -40,6 +41,7 @@ export default function App(): React.JSX.Element {
                     }
                 >
                     <Route path="main" element={<ShipperMainPage />} />
+                    <Route path="profile" element={<ShipperProfilePage />} />
                     {/* Здесь будут другие маршруты грузоотправителя */}
                 </Route>
 
