@@ -14,6 +14,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ShipperMainPage from "./pages/ShipperMainPage";
 import MainLayout from "./layout/MainLayout";
 import ShipperProfilePage from "./pages/ShipperProfilePage";
+import ShipperCreateRequestPage from "./pages/ShipperCreateRequestPage";
 
 export default function App(): React.JSX.Element {
     return (
@@ -42,6 +43,7 @@ export default function App(): React.JSX.Element {
                 >
                     <Route path="main" element={<ShipperMainPage />} />
                     <Route path="profile" element={<ShipperProfilePage />} />
+                    <Route path="create-request" element={<ShipperCreateRequestPage />} />
                     {/* Здесь будут другие маршруты грузоотправителя */}
                 </Route>
 

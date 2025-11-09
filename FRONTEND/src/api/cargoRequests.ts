@@ -134,4 +134,35 @@ export const cargoRequestsApi = {
     // Для главной страницы берем первые 50 заявок
     return await cargoRequestsApi.getCargoRequests(filter, 1, 50);
   },
+
+  getCargoTypes: async () => {
+    console.log('📋 Getting cargo types');
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return {
+      cargoTypes: [
+        { id: 1, type: "Обычный", fragile: false },
+        { id: 2, type: "Хрупкий", fragile: true },
+        { id: 3, type: "Осторожно стекло", fragile: true },
+      ]
+    };
+  },
+
+  createCargoRequest: async (requestData: any) => {
+    console.log('📦 Creating cargo request:', requestData);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { id: Math.floor(Math.random() * 1000) + 1 };
+  },
+
+  createRecipient: async (recipientData: any) => {
+    console.log('👤 Creating recipient:', recipientData);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return { id: Math.floor(Math.random() * 1000) + 1 };
+  },
+
+  createCargo: async (cargoItems: any[]) => {
+    console.log('📦 Creating cargo items:', cargoItems);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    return { ids: cargoItems.map((_, index) => index + 1) };
+  },
 };
+
