@@ -4,7 +4,7 @@ import {
   Layout,
   Card,
   Button,
-  List,
+  Table,
   Tag,
   Space,
   Typography,
@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { cargoRequestsApi } from "../api/cargoRequests";
 import type { CargoRequest } from "../types/cargo";
+import type { ColumnsType } from "antd/es/table";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -84,6 +85,11 @@ const ShipperMainPage: React.FC = () => {
 
   // Функция для форматирования даты
   const formatDate = (timestamp: number): string => {
+    return new Date(timestamp * 1000).toLocaleDateString("ru-RU");
+  };
+
+  // Функция для форматирования даты и времени
+  const formatDateTime = (timestamp: number): string => {
     return new Date(timestamp * 1000).toLocaleString("ru-RU");
   };
 
@@ -103,13 +109,77 @@ const ShipperMainPage: React.FC = () => {
     return statusColors[status] || "default";
   };
 
-  // Функция для отображения информации о цене
-  const renderPriceInfo = (request: CargoRequest): string => {
-    if (request.actualTripId) {
-      return "Цена согласована";
-    }
-    return `Макс. цена: ${request.maxPrice} руб`;
-  };
+  // Колонки для таблицы
+  const columns: ColumnsType<CargoRequest> = [
+    
+    {
+      title: 'Дата создания',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 150,
+      render: (createdAt: number) => (
+        <Text>{formatDate(createdAt)}</Text>
+      ),
+    },
+    {
+      title: 'ID заявки',
+      dataIndex: 'id',
+      key: 'id',
+      width: 120,
+      render: (id: string) => (
+        <Text strong>#{id.slice(0, 8)}</Text>
+      ),
+    },
+    {
+      title: 'Откуда',
+      dataIndex: 'fromStation',
+      key: 'fromStation',
+      width: 200,
+      render: (fromStation: CargoRequest['fromStation']) => (
+        <Text>{fromStation.address}</Text>
+      ),
+    },
+    {
+      title: 'Куда',
+      dataIndex: 'toStation',
+      key: 'toStation',
+      width: 200,
+      render: (toStation: CargoRequest['toStation']) => (
+        <Text>{toStation.address}</Text>
+      ),
+    },
+    {
+      title: 'Дедлайн',
+      dataIndex: 'deadline',
+      key: 'deadline',
+      width: 150,
+      render: (deadline: number) => (
+        <Text>{formatDate(deadline)}</Text>
+      ),
+    },
+    {
+      title: 'Макс. цена',
+      dataIndex: 'maxPrice',
+      key: 'maxPrice',
+      width: 120,
+      render: (maxPrice: string, record: CargoRequest) => (
+        <Text strong>
+          {record.actualTripId ? "Цена согласована" : `${maxPrice} руб`}
+        </Text>
+      ),
+    },
+    {
+      title: 'Статус',
+      dataIndex: 'status',
+      key: 'status',
+      width: 200,
+      render: (status: string) => (
+        <Tag color={getStatusColor(status)}>
+          {status}
+        </Tag>
+      ),
+    },
+  ];
 
   if (!user || user.role !== 'ROLE_CONSIGNER') {
     return (
@@ -130,45 +200,14 @@ const ShipperMainPage: React.FC = () => {
       <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
         <Col span={24}>
           <Space direction="vertical" size="large" style={{ width: "100%" }}>
-            <Title level={2}>Главная страница грузоотправителя</Title>
+            <Title level={2}>Актуальные заявки</Title>
             
-            <Space wrap>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                size="large"
-                onClick={handleCreateRequest}
-              >
-                Создать заявку
-              </Button>
-              <Button
-                icon={<HistoryOutlined />}
-                size="large"
-                onClick={handleHistory}
-              >
-                История заявок
-              </Button>
-              <Button
-                icon={<UserOutlined />}
-                size="large"
-                onClick={handleProfile}
-              >
-                Личный кабинет
-              </Button>
-              <Button
-                icon={<LogoutOutlined />}
-                size="large"
-                danger
-                onClick={handleLogout}
-              >
-                Выйти
-              </Button>
-            </Space>
+            
           </Space>
         </Col>
       </Row>
 
-      {/* Список активных заявок */}
+      {/* Таблица активных заявок */}
       <Row>
         <Col span={24}>
           <Card title="Активные заявки" bordered={false}>
@@ -201,63 +240,42 @@ const ShipperMainPage: React.FC = () => {
                 </Button>
               </Empty>
             ) : (
-              <List
-                itemLayout="horizontal"
+              <Table
+                columns={columns}
                 dataSource={activeRequests}
-                renderItem={(request) => (
-                  <List.Item
-                    actions={[
-                      <Button
-                        key="details"
-                        type="link"
-                        icon={<EyeOutlined />}
-                        onClick={() => handleRequestDetails(request.id)}
-                      >
-                        Подробнее
-                      </Button>,
-                    ]}
-                  >
-                    <List.Item.Meta
-                      title={
-                        <Space>
-                          <Text strong>
-                            Заявка #{request.id.slice(0, 8)}
-                          </Text>
-                          <Tag color={getStatusColor(request.status)}>
-                            {request.status}
-                          </Tag>
-                        </Space>
-                      }
-                      description={
-                        <Space direction="vertical" size="small">
-                          <Text>
-                            <strong>От:</strong> {request.fromStation.address}
-                          </Text>
-                          <Text>
-                            <strong>До:</strong> {request.toStation.address}
-                          </Text>
-                          <Text>
-                            <strong>Дедлайн:</strong> {formatDate(request.deadline)}
-                          </Text>
-                          {request.actualTripId && (
-                            <Text>
-                              <strong>Начало поездки:</strong>{" "}
-                              {formatDate(request.createdAt)}
-                            </Text>
-                          )}
-                          <Text>
-                            <strong>{renderPriceInfo(request)}</strong>
-                          </Text>
-                        </Space>
-                      }
-                    />
-                  </List.Item>
-                )}
+                rowKey="id"
+                scroll={{ x: 1200 }}
+                pagination={{
+                  pageSize: 10,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  showTotal: (total, range) => 
+                    `Показано ${range[0]}-${range[1]} из ${total} заявок`,
+                }}
+                size="middle"
               />
             )}
           </Card>
         </Col>
       </Row>
+
+      <Space wrap>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                size="large"
+                onClick={handleCreateRequest}
+              >
+                Создать заявку
+              </Button>
+              <Button
+                icon={<HistoryOutlined />}
+                size="large"
+                onClick={handleHistory}
+              >
+                История заявок
+              </Button>
+            </Space>
     </Content>
   );
 };
