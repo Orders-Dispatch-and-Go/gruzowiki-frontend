@@ -30,6 +30,8 @@ import dayjs from "dayjs";
 import AutoInput from "../components/AutoInput";
 import { Content } from "antd/es/layout/layout";
 
+import Map from "../components/Map";
+
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
@@ -734,6 +736,8 @@ const ShipperCreateRequestPage: React.FC = () => {
                         </Button>
                     </Space>
                 </Form>
+
+                <Map ></Map>
             </Content>
         </Layout>
     );

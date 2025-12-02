@@ -15,6 +15,8 @@ import ShipperMainPage from "./pages/ShipperMainPage";
 import MainLayout from "./layout/MainLayout";
 import ShipperProfilePage from "./pages/ShipperProfilePage";
 import ShipperCreateRequestPage from "./pages/ShipperCreateRequestPage";
+import 'leaflet/dist/leaflet.css';
+
 
 export default function App(): React.JSX.Element {
     return (
