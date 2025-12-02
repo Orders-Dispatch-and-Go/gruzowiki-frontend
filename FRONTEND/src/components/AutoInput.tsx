@@ -1,5 +1,7 @@
 // components/AutoInput.tsx
 import React, { useEffect, useRef } from "react";
+import { Input, Button, Space, Menu, Flex } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 import useAutocomplete from "../hooks/useAutocomplete";
 import type { AddressData, AddressSuggestion } from "../types/cargo";
 
@@ -10,6 +12,7 @@ interface AutoInputProps {
     onValidChange?: (isValid: boolean) => void;
     onRemove?: () => void;
     fetchSuggestions: (query: string) => Promise<AddressSuggestion[]>;
+    placeholder?: string;
 }
 
 const AutoInput: React.FC<AutoInputProps> = ({
@@ -19,6 +22,7 @@ const AutoInput: React.FC<AutoInputProps> = ({
     onValidChange,
     onRemove,
     fetchSuggestions,
+    placeholder,
 }) => {
     const {
         value: inputValue,
@@ -70,31 +74,50 @@ const AutoInput: React.FC<AutoInputProps> = ({
     }, [setIsOpen]);
 
     return (
-        <div className="auto-input" ref={containerRef}>
-            <div className="input-with-remove">
-                <input
-                    type="text"
-                    placeholder={label}
+        <Flex vertical gap={4} ref={containerRef} style={{ position: "relative" }}>
+
+            <Space.Compact style={{ width: "100%" }}>
+                <Input
+                    placeholder={placeholder || label}
                     value={inputValue}
                     onChange={handleChange}
                     onFocus={() => setIsOpen(suggestions.length > 0)}
+                    style={{ width: "100%" }}
                 />
                 {onRemove && (
-                    <button className="remove-button" onClick={onRemove}>
-                        ✖
-                    </button>
+                    <Button
+                        icon={<CloseOutlined />}
+                        onClick={onRemove}
+                        danger
+                    />
                 )}
-            </div>
+            </Space.Compact>
+
             {isOpen && suggestions.length > 0 && (
-                <ul className="suggestions-list">
-                    {suggestions.map((s, i) => (
-                        <li key={i} onClick={() => handleSelect(s)}>
-                            {s.displayName}
-                        </li>
+                <Menu
+                    style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        right: 0,
+                        zIndex: 1050,
+                        marginTop: 4,
+                        maxHeight: 250,
+                        overflowY: "auto",
+                    }}
+                >
+                    {suggestions.map((suggestion, index) => (
+                        <Menu.Item
+                            key={index}
+                            onClick={() => handleSelect(suggestion)}
+                            style={{ padding: "8px 12px" }}
+                        >
+                            {suggestion.displayName}
+                        </Menu.Item>
                     ))}
-                </ul>
+                </Menu>
             )}
-        </div>
+        </Flex>
     );
 };
 

@@ -13,14 +13,22 @@ import {
     Col,
     message,
     Select,
+    Layout,
 } from "antd";
 // import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { cargoRequestsApi } from "../api/cargoRequests";
-import type { CargoItem, Recipient, CargoType, AddressSuggestion, AddressData } from "../types/cargo";
+import type {
+    CargoItem,
+    Recipient,
+    CargoType,
+    AddressSuggestion,
+    AddressData,
+} from "../types/cargo";
 import dayjs from "dayjs";
-import AutoInput from '../components/AutoInput';
+import AutoInput from "../components/AutoInput";
+import { Content } from "antd/es/layout/layout";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -32,9 +40,11 @@ interface CargoFormItem extends Omit<CargoItem, "cargoType"> {
 }
 
 // В начале компонента ShipperCreateRequestPage, после импортов
-const fetchAddressSuggestions = async (query: string): Promise<AddressSuggestion[]> => {
+const fetchAddressSuggestions = async (
+    query: string
+): Promise<AddressSuggestion[]> => {
     if (!query || query.length < 3) return [];
-    
+
     try {
         const response = await fetch(
             `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
@@ -48,7 +58,7 @@ const fetchAddressSuggestions = async (query: string): Promise<AddressSuggestion
             lon: parseFloat(item.lon),
         }));
     } catch (error) {
-        console.error('Error fetching suggestions:', error);
+        console.error("Error fetching suggestions:", error);
         return [];
     }
 };
@@ -110,7 +120,7 @@ const ShipperCreateRequestPage: React.FC = () => {
 
     // Функция для обновления одного поля груза
     const updateCargoField = (field: keyof CargoFormItem, value: any) => {
-        setCargoItem(prev => ({ ...prev, [field]: value }));
+        setCargoItem((prev) => ({ ...prev, [field]: value }));
     };
 
     // Валидация суммы габаритов для одного груза
@@ -121,12 +131,12 @@ const ShipperCreateRequestPage: React.FC = () => {
 
     const validateAddressSelection = (_: any, value: AddressData) => {
         if (!value?.isValid) {
-            return Promise.reject(new Error('Выберите адрес из списка предложений'));
+            return Promise.reject(
+                new Error("Выберите адрес из списка предложений")
+            );
         }
         return Promise.resolve();
     };
-
-
 
     // Отправка формы
     const handleSubmit = async (values: any) => {
@@ -186,16 +196,18 @@ const ShipperCreateRequestPage: React.FC = () => {
             );
 
             // 3. Создаем грузы
-            const cargoData: CargoItem[] = [{
-            length: cargoItem.length,
-            height: cargoItem.height,
-            width: cargoItem.width,
-            weight: cargoItem.weight,
-            cargoType: cargoItem.cargoType,
-            description: cargoItem.description || "",
-            worth: cargoItem.worth,
-            cargoRequestId: requestResponse.id,
-        }];
+            const cargoData: CargoItem[] = [
+                {
+                    length: cargoItem.length,
+                    height: cargoItem.height,
+                    width: cargoItem.width,
+                    weight: cargoItem.weight,
+                    cargoType: cargoItem.cargoType,
+                    description: cargoItem.description || "",
+                    worth: cargoItem.worth,
+                    cargoRequestId: requestResponse.id,
+                },
+            ];
 
             await cargoRequestsApi.createCargo(cargoData);
 
@@ -225,466 +237,505 @@ const ShipperCreateRequestPage: React.FC = () => {
     }
 
     return (
-        <div style={{ padding: "24px", maxWidth: 1200, margin: "0 auto" }}>
-            <Title level={2}>Создание заявки на перевозку</Title>
-
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleSubmit}
-                initialValues={{
-                    maxPrice: 1000,
-                }}
+        <Layout>
+            <Content
+                style={{ padding: "24px", maxWidth: 1200, margin: "0 auto" }}
             >
-
-
-                {/* Адреса */}
-<Card title="Адреса" style={{ marginBottom: 24 }}>
-    <Row gutter={16}>
-        <Col span={12}>
-            <Form.Item
-                name="fromAddress"
-                label="Адрес отправления"
-                rules={[{ validator: validateAddressSelection }]}
-                getValueFromEvent={(value) => {
-                    // Если приходит строка - это ручной ввод
-                    if (typeof value === 'string') {
-                        return {
-                            address: value,
-                            isValid: false,
-                            coords: null,
-                        };
-                    }
-                    // Если приходит объект AddressData - это выбор из подсказок
-                    return value;
-                }}
-                getValueProps={(value) => {
-                    // Для правильного отображения в AutoInput
-                    return {
-                        address: value?.address || '',
-                        isValid: value?.isValid || false,
-                        coords: value?.coords || null,
-                    };
-                }}
-            >
-                <AutoInput
-                    label="Введите адрес отправления"
-                    value={form.getFieldValue('fromAddress')?.address || ''}
-                    onChange={(value) => {
-                        // AutoInput возвращает либо строку, либо AddressData
-                        form.setFieldValue('fromAddress', value);
+                <Title level={2}>Создание заявки на перевозку</Title>
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleSubmit}
+                    initialValues={{
+                        maxPrice: 1000,
                     }}
-                    onValidChange={(isValid) => {
-                        const current = form.getFieldValue('fromAddress');
-                        if (current && typeof current === 'object') {
-                            form.setFieldValue('fromAddress', {
-                                ...current,
-                                isValid,
-                            });
-                        }
-                    }}
-                    fetchSuggestions={fetchAddressSuggestions}
-                />
-            </Form.Item>
-        </Col>
-        <Col span={12}>
-            <Form.Item
-                name="toAddress"
-                label="Адрес доставки"
-                rules={[{ validator: validateAddressSelection }]}
-                getValueFromEvent={(value) => {
-                    if (typeof value === 'string') {
-                        return {
-                            address: value,
-                            isValid: false,
-                            coords: null,
-                        };
-                    }
-                    return value;
-                }}
-                getValueProps={(value) => {
-                    return {
-                        address: value?.address || '',
-                        isValid: value?.isValid || false,
-                        coords: value?.coords || null,
-                    };
-                }}
-            >
-                <AutoInput
-                    label="Введите адрес доставки"
-                    value={form.getFieldValue('toAddress')?.address || ''}
-                    onChange={(value) => {
-                        form.setFieldValue('toAddress', value);
-                    }}
-                    onValidChange={(isValid) => {
-                        const current = form.getFieldValue('toAddress');
-                        if (current && typeof current === 'object') {
-                            form.setFieldValue('toAddress', {
-                                ...current,
-                                isValid,
-                            });
-                        }
-                    }}
-                    fetchSuggestions={fetchAddressSuggestions}
-                />
-            </Form.Item>
-        </Col>
-    </Row>
-</Card>
-
-                {/* Получатель */}
-                <Card
-                    title="Информация о получателе"
-                    style={{ marginBottom: 24 }}
                 >
-                    <Row gutter={16}>
-                        <Col span={8}>
-                            <Form.Item
-                                name="recipientLastName"
-                                label="Фамилия"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Обязательное поле",
-                                    },
-                                    {
-                                        max: 40,
-                                        message: "Максимум 40 символов",
-                                    },
-                                    {
-                                        pattern: /^[а-яА-ЯёЁ\s\-]+$/,
-                                        message:
-                                            "Только кириллица, пробелы и дефисы",
-                                    },
-                                ]}
-                            >
-                                <Input placeholder="Фамилия" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                name="recipientFirstName"
-                                label="Имя"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Обязательное поле",
-                                    },
-                                    {
-                                        max: 30,
-                                        message: "Максимум 30 символов",
-                                    },
-                                    {
-                                        pattern: /^[а-яА-ЯёЁ\s\-]+$/,
-                                        message:
-                                            "Только кириллица, пробелы и дефисы",
-                                    },
-                                ]}
-                            >
-                                <Input placeholder="Имя" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                name="recipientMiddleName"
-                                label="Отчество"
-                                rules={[
-                                    {
-                                        max: 40,
-                                        message: "Максимум 40 символов",
-                                    },
-                                    {
-                                        pattern: /^[а-яА-ЯёЁ\s\-]*$/,
-                                        message:
-                                            "Только кириллица, пробелы и дефисы",
-                                    },
-                                ]}
-                            >
-                                <Input placeholder="Отчество" />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="recipientEmail"
-                                label="Email"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Обязательное поле",
-                                    },
-                                    {
-                                        type: "email",
-                                        message: "Неверный формат email",
-                                    },
-                                    {
-                                        max: 128,
-                                        message: "Максимум 128 символов",
-                                    },
-                                ]}
-                            >
-                                <Input placeholder="email@example.com" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="recipientPhone"
-                                label="Телефон"
-                                rules={[{ validator: validatePhone }]}
-                            >
-                                <Input placeholder="+7XXXXXXXXXX" />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Card>
-
-                {/* Параметры заявки */}
-                <Card title="Параметры заявки" style={{ marginBottom: 24 }}>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="deadline"
-                                label="Дедлайн доставки"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Обязательное поле",
-                                    },
-                                ]}
-                            >
-                                <DatePicker
-                                    style={{ width: "100%" }}
-                                    disabledDate={(current) => {
-                                        return (
-                                            current &&
-                                            (current < dayjs().startOf("day") ||
-                                                current >
-                                                    dayjs().add(2, "month"))
-                                        );
-                                    }}
-                                    placeholder="Выберите дату"
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="maxPrice"
-                                label="Вознаграждение ₽"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Обязательное поле",
-                                    },
-                                    {
-                                        type: "number",
-                                        min: 0,
-                                        max: 1000000,
-                                        message: "От 0 до 1 000 000 руб",
-                                    },
-                                ]}
-                            >
-                                <InputNumber
-                                    style={{ width: "100%" }}
-                                    min={0}
-                                    max={1000000}
-                                    formatter={(value) =>
-                                        `${value}`.replace(
-                                            /\B(?=(\d{3})+(?!\d))/g,
-                                            " "
-                                        )
-                                    }
-                                    parser={(value) => {
-                                        const num =
-                                            parseInt(
-                                                value!.replace(/\s/g, "")
-                                            ) || 0;
-                                        return Math.max(
-                                            0,
-                                            Math.min(1000000, num)
-                                        ) as 0 | 1000000;
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Card>
-
-                {/* Грузы */}
-                <Card title="Информация о грузах" style={{ marginBottom: 24 }}>
-
-                            <Space
-                                direction="vertical"
-                                style={{ width: "100%" }}
-                                size="middle"
-                            >
-
-                                <Row gutter={16}>
-                                    <Col span={6}>
-                                        <Form.Item label="Длина (см)" required>
-                                            <InputNumber
-                                                value={cargoItem.length}
-                                                onChange={(value) =>
-                                                    updateCargoField(
-                                                        "length",
-                                                        value || 0
-                                                    )
-                                                }
-                                                min={1}
-                                                max={500}
-                                                style={{ width: "100%" }}
-                                                placeholder="Длина"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={6}>
-                                        <Form.Item label="Ширина (см)" required>
-                                            <InputNumber
-                                                value={cargoItem.width}
-                                                onChange={(value) =>
-                                                    updateCargoField(
-                                                        "width",
-                                                        value || 0
-                                                    )
-                                                }
-                                                min={1}
-                                                max={500}
-                                                style={{ width: "100%" }}
-                                                placeholder="Ширина"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={6}>
-                                        <Form.Item label="Высота (см)" required>
-                                            <InputNumber
-                                                value={cargoItem.height}
-                                                onChange={(value) =>
-                                                    updateCargoField(
-                                                        "height",
-                                                        value || 0
-                                                    )
-                                                }
-                                                min={1}
-                                                max={500}
-                                                style={{ width: "100%" }}
-                                                placeholder="Высота"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={6}>
-                                        <Form.Item label="Вес (кг)" required>
-                                            <InputNumber
-                                                value={cargoItem.weight}
-                                                onChange={(value) =>
-                                                    updateCargoField(
-                                                        "weight",
-                                                        value || 0
-                                                    )
-                                                }
-                                                min={1}
-                                                max={1000}
-                                                style={{ width: "100%" }}
-                                                placeholder="Вес"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-
-                                <Row gutter={16}>
-                                    <Col span={12}>
-                                        <Form.Item label="Тип груза">
-                                            <Select
-                                                value={cargoItem.cargoType}
-                                                onChange={(value) =>
-                                                    updateCargoField(
-                                                        "cargoType",
-                                                        value
-                                                    )
-                                                }
-                                                style={{ width: "100%" }}
-                                            >
-                                                {cargoTypes.map((type) => (
-                                                    <Option
-                                                        key={type.id}
-                                                        value={type.id}
-                                                    >
-                                                        {type.type}{" "}
-                                                        {type.fragile
-                                                            ? "(Хрупкий)"
-                                                            : ""}
-                                                    </Option>
-                                                ))}
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Form.Item label="Объявленная ценность (руб)">
-                                            <InputNumber
-                                                value={cargoItem.worth}
-                                                onChange={(value) =>
-                                                    updateCargoField(
-                                                        "worth",
-                                                        value || 0
-                                                    )
-                                                }
-                                                min={0}
-                                                max={1000000}
-                                                style={{ width: "100%" }}
-                                                formatter={(value) =>
-                                                    `${value}`.replace(
-                                                        /\B(?=(\d{3})+(?!\d))/g,
-                                                        " "
-                                                    )
-                                                }
-                                                parser={(value) =>
-                                                    parseInt(
-                                                        value!.replace(
-                                                            /\s/g,
-                                                            ""
-                                                        )
-                                                    ) || 0
-                                                }
-                                                placeholder="Ценность"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-
-                                <Form.Item label="Описание груза">
-                                    <Input.TextArea
-                                        value={cargoItem.description}
-                                        onChange={(e) =>
-                                            updateCargoField("description", e.target.value)
+                    {/* Адреса */}
+                    <Card title="Адреса" style={{ marginBottom: 24 }}>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="fromAddress"
+                                    label="Адрес отправления"
+                                    rules={[
+                                        { validator: validateAddressSelection },
+                                    ]}
+                                    getValueFromEvent={(value) => {
+                                        // Если приходит строка - это ручной ввод
+                                        if (typeof value === "string") {
+                                            return {
+                                                address: value,
+                                                isValid: false,
+                                                coords: null,
+                                            };
                                         }
-                                        placeholder="Описание груза"
-                                        maxLength={500}
-                                        rows={3}
-                                        showCount
+                                        // Если приходит объект AddressData - это выбор из подсказок
+                                        return value;
+                                    }}
+                                    getValueProps={(value) => {
+                                        // Для правильного отображения в AutoInput
+                                        return {
+                                            address: value?.address || "",
+                                            isValid: value?.isValid || false,
+                                            coords: value?.coords || null,
+                                        };
+                                    }}
+                                >
+                                    <AutoInput
+                                        label="Введите адрес отправления"
+                                        value={
+                                            form.getFieldValue("fromAddress")
+                                                ?.address || ""
+                                        }
+                                        onChange={(value) => {
+                                            // AutoInput возвращает либо строку, либо AddressData
+                                            form.setFieldValue(
+                                                "fromAddress",
+                                                value
+                                            );
+                                        }}
+                                        onValidChange={(isValid) => {
+                                            const current =
+                                                form.getFieldValue(
+                                                    "fromAddress"
+                                                );
+                                            if (
+                                                current &&
+                                                typeof current === "object"
+                                            ) {
+                                                form.setFieldValue(
+                                                    "fromAddress",
+                                                    {
+                                                        ...current,
+                                                        isValid,
+                                                    }
+                                                );
+                                            }
+                                        }}
+                                        fetchSuggestions={
+                                            fetchAddressSuggestions
+                                        }
                                     />
                                 </Form.Item>
-                            </Space>
-                </Card>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="toAddress"
+                                    label="Адрес доставки"
+                                    rules={[
+                                        { validator: validateAddressSelection },
+                                    ]}
+                                    getValueFromEvent={(value) => {
+                                        if (typeof value === "string") {
+                                            return {
+                                                address: value,
+                                                isValid: false,
+                                                coords: null,
+                                            };
+                                        }
+                                        return value;
+                                    }}
+                                    getValueProps={(value) => {
+                                        return {
+                                            address: value?.address || "",
+                                            isValid: value?.isValid || false,
+                                            coords: value?.coords || null,
+                                        };
+                                    }}
+                                >
+                                    <AutoInput
+                                        label="Введите адрес доставки"
+                                        value={
+                                            form.getFieldValue("toAddress")
+                                                ?.address || ""
+                                        }
+                                        onChange={(value) => {
+                                            form.setFieldValue(
+                                                "toAddress",
+                                                value
+                                            );
+                                        }}
+                                        onValidChange={(isValid) => {
+                                            const current =
+                                                form.getFieldValue("toAddress");
+                                            if (
+                                                current &&
+                                                typeof current === "object"
+                                            ) {
+                                                form.setFieldValue(
+                                                    "toAddress",
+                                                    {
+                                                        ...current,
+                                                        isValid,
+                                                    }
+                                                );
+                                            }
+                                        }}
+                                        fetchSuggestions={
+                                            fetchAddressSuggestions
+                                        }
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </Card>
 
-                {/* Кнопки отправки */}
-                <Space>
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                        loading={loading}
-                        size="large"
+                    {/* Получатель */}
+                    <Card
+                        title="Информация о получателе"
+                        style={{ marginBottom: 24 }}
                     >
-                        Создать заявку
-                    </Button>
-                    <Button
-                        onClick={() => navigate("/shipper/main")}
-                        size="large"
+                        <Row gutter={16}>
+                            <Col span={8}>
+                                <Form.Item
+                                    name="recipientLastName"
+                                    label="Фамилия"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Обязательное поле",
+                                        },
+                                        {
+                                            max: 40,
+                                            message: "Максимум 40 символов",
+                                        },
+                                        {
+                                            pattern: /^[а-яА-ЯёЁ\s\-]+$/,
+                                            message:
+                                                "Только кириллица, пробелы и дефисы",
+                                        },
+                                    ]}
+                                >
+                                    <Input placeholder="Фамилия" />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item
+                                    name="recipientFirstName"
+                                    label="Имя"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Обязательное поле",
+                                        },
+                                        {
+                                            max: 30,
+                                            message: "Максимум 30 символов",
+                                        },
+                                        {
+                                            pattern: /^[а-яА-ЯёЁ\s\-]+$/,
+                                            message:
+                                                "Только кириллица, пробелы и дефисы",
+                                        },
+                                    ]}
+                                >
+                                    <Input placeholder="Имя" />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item
+                                    name="recipientMiddleName"
+                                    label="Отчество"
+                                    rules={[
+                                        {
+                                            max: 40,
+                                            message: "Максимум 40 символов",
+                                        },
+                                        {
+                                            pattern: /^[а-яА-ЯёЁ\s\-]*$/,
+                                            message:
+                                                "Только кириллица, пробелы и дефисы",
+                                        },
+                                    ]}
+                                >
+                                    <Input placeholder="Отчество" />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="recipientEmail"
+                                    label="Email"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Обязательное поле",
+                                        },
+                                        {
+                                            type: "email",
+                                            message: "Неверный формат email",
+                                        },
+                                        {
+                                            max: 128,
+                                            message: "Максимум 128 символов",
+                                        },
+                                    ]}
+                                >
+                                    <Input placeholder="email@example.com" />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="recipientPhone"
+                                    label="Телефон"
+                                    rules={[{ validator: validatePhone }]}
+                                >
+                                    <Input placeholder="+7XXXXXXXXXX" />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </Card>
+
+                    {/* Параметры заявки */}
+                    <Card title="Параметры заявки" style={{ marginBottom: 24 }}>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="deadline"
+                                    label="Дедлайн доставки"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Обязательное поле",
+                                        },
+                                    ]}
+                                >
+                                    <DatePicker
+                                        style={{ width: "100%" }}
+                                        disabledDate={(current) => {
+                                            return (
+                                                current &&
+                                                (current <
+                                                    dayjs().startOf("day") ||
+                                                    current >
+                                                        dayjs().add(2, "month"))
+                                            );
+                                        }}
+                                        placeholder="Выберите дату"
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item
+                                    name="maxPrice"
+                                    label="Вознаграждение ₽"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Обязательное поле",
+                                        },
+                                        {
+                                            type: "number",
+                                            min: 0,
+                                            max: 1000000,
+                                            message: "От 0 до 1 000 000 руб",
+                                        },
+                                    ]}
+                                >
+                                    <InputNumber
+                                        style={{ width: "100%" }}
+                                        min={0}
+                                        max={1000000}
+                                        formatter={(value) =>
+                                            `${value}`.replace(
+                                                /\B(?=(\d{3})+(?!\d))/g,
+                                                " "
+                                            )
+                                        }
+                                        parser={(value) => {
+                                            const num =
+                                                parseInt(
+                                                    value!.replace(/\s/g, "")
+                                                ) || 0;
+                                            return Math.max(
+                                                0,
+                                                Math.min(1000000, num)
+                                            ) as 0 | 1000000;
+                                        }}
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </Card>
+
+                    {/* Грузы */}
+                    <Card
+                        title="Информация о грузах"
+                        style={{ marginBottom: 24 }}
                     >
-                        Отмена
-                    </Button>
-                </Space>
-            </Form>
-        </div>
+                        <Space
+                            direction="vertical"
+                            style={{ width: "100%" }}
+                            size="middle"
+                        >
+                            <Row gutter={16}>
+                                <Col span={6}>
+                                    <Form.Item label="Длина (см)" required>
+                                        <InputNumber
+                                            value={cargoItem.length}
+                                            onChange={(value) =>
+                                                updateCargoField(
+                                                    "length",
+                                                    value || 0
+                                                )
+                                            }
+                                            min={1}
+                                            max={500}
+                                            style={{ width: "100%" }}
+                                            placeholder="Длина"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={6}>
+                                    <Form.Item label="Ширина (см)" required>
+                                        <InputNumber
+                                            value={cargoItem.width}
+                                            onChange={(value) =>
+                                                updateCargoField(
+                                                    "width",
+                                                    value || 0
+                                                )
+                                            }
+                                            min={1}
+                                            max={500}
+                                            style={{ width: "100%" }}
+                                            placeholder="Ширина"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={6}>
+                                    <Form.Item label="Высота (см)" required>
+                                        <InputNumber
+                                            value={cargoItem.height}
+                                            onChange={(value) =>
+                                                updateCargoField(
+                                                    "height",
+                                                    value || 0
+                                                )
+                                            }
+                                            min={1}
+                                            max={500}
+                                            style={{ width: "100%" }}
+                                            placeholder="Высота"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={6}>
+                                    <Form.Item label="Вес (кг)" required>
+                                        <InputNumber
+                                            value={cargoItem.weight}
+                                            onChange={(value) =>
+                                                updateCargoField(
+                                                    "weight",
+                                                    value || 0
+                                                )
+                                            }
+                                            min={1}
+                                            max={1000}
+                                            style={{ width: "100%" }}
+                                            placeholder="Вес"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Row gutter={16}>
+                                <Col span={12}>
+                                    <Form.Item label="Тип груза">
+                                        <Select
+                                            value={cargoItem.cargoType}
+                                            onChange={(value) =>
+                                                updateCargoField(
+                                                    "cargoType",
+                                                    value
+                                                )
+                                            }
+                                            style={{ width: "100%" }}
+                                        >
+                                            {cargoTypes.map((type) => (
+                                                <Option
+                                                    key={type.id}
+                                                    value={type.id}
+                                                >
+                                                    {type.type}{" "}
+                                                    {type.fragile
+                                                        ? "(Хрупкий)"
+                                                        : ""}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item label="Объявленная ценность (руб)">
+                                        <InputNumber
+                                            value={cargoItem.worth}
+                                            onChange={(value) =>
+                                                updateCargoField(
+                                                    "worth",
+                                                    value || 0
+                                                )
+                                            }
+                                            min={0}
+                                            max={1000000}
+                                            style={{ width: "100%" }}
+                                            formatter={(value) =>
+                                                `${value}`.replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    " "
+                                                )
+                                            }
+                                            parser={(value) =>
+                                                parseInt(
+                                                    value!.replace(/\s/g, "")
+                                                ) || 0
+                                            }
+                                            placeholder="Ценность"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Form.Item label="Описание груза">
+                                <Input.TextArea
+                                    value={cargoItem.description}
+                                    onChange={(e) =>
+                                        updateCargoField(
+                                            "description",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Описание груза"
+                                    maxLength={500}
+                                    rows={3}
+                                    showCount
+                                />
+                            </Form.Item>
+                        </Space>
+                    </Card>
+
+                    {/* Кнопки отправки */}
+                    <Space>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={loading}
+                            size="large"
+                        >
+                            Создать заявку
+                        </Button>
+                        <Button
+                            onClick={() => navigate("/shipper/main")}
+                            size="large"
+                        >
+                            Отмена
+                        </Button>
+                    </Space>
+                </Form>
+            </Content>
+        </Layout>
     );
 };
 
