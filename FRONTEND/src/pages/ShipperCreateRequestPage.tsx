@@ -18,8 +18,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { cargoRequestsApi } from "../api/cargoRequests";
-import type { CargoItem, Recipient, CargoType } from "../types/cargo";
+import type { CargoItem, Recipient, CargoType, AddressSuggestion, AddressData } from "../types/cargo";
 import dayjs from "dayjs";
+import AutoInput from '../components/AutoInput';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -29,6 +30,28 @@ interface CargoFormItem extends Omit<CargoItem, "cargoType"> {
     cargoType: number;
     key: number;
 }
+
+// В начале компонента ShipperCreateRequestPage, после импортов
+const fetchAddressSuggestions = async (query: string): Promise<AddressSuggestion[]> => {
+    if (!query || query.length < 3) return [];
+    
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+                query
+            )}&limit=5&countrycodes=ru&addressdetails=1`
+        );
+        const data = await response.json();
+        return data.map((item: any) => ({
+            displayName: item.display_name,
+            lat: parseFloat(item.lat),
+            lon: parseFloat(item.lon),
+        }));
+    } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        return [];
+    }
+};
 
 const ShipperCreateRequestPage: React.FC = () => {
     const { user } = useAuth();
@@ -94,6 +117,13 @@ const ShipperCreateRequestPage: React.FC = () => {
     const validateTotalDimensions = (item: CargoFormItem): boolean => {
         const total = item.length + item.width + item.height;
         return total <= 1000;
+    };
+
+    const validateAddressSelection = (_: any, value: AddressData) => {
+        if (!value?.isValid) {
+            return Promise.reject(new Error('Выберите адрес из списка предложений'));
+        }
+        return Promise.resolve();
     };
 
 
@@ -206,29 +236,101 @@ const ShipperCreateRequestPage: React.FC = () => {
                     maxPrice: 1000,
                 }}
             >
+
+
                 {/* Адреса */}
-                <Card title="Адреса" style={{ marginBottom: 24 }}>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="fromAddress"
-                                label="Адрес отправления"
-                                rules={[{ validator: validateAddress }]}
-                            >
-                                <Input placeholder="Введите адрес отправления" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="toAddress"
-                                label="Адрес доставки"
-                                rules={[{ validator: validateAddress }]}
-                            >
-                                <Input placeholder="Введите адрес доставки" />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Card>
+<Card title="Адреса" style={{ marginBottom: 24 }}>
+    <Row gutter={16}>
+        <Col span={12}>
+            <Form.Item
+                name="fromAddress"
+                label="Адрес отправления"
+                rules={[{ validator: validateAddressSelection }]}
+                getValueFromEvent={(value) => {
+                    // Если приходит строка - это ручной ввод
+                    if (typeof value === 'string') {
+                        return {
+                            address: value,
+                            isValid: false,
+                            coords: null,
+                        };
+                    }
+                    // Если приходит объект AddressData - это выбор из подсказок
+                    return value;
+                }}
+                getValueProps={(value) => {
+                    // Для правильного отображения в AutoInput
+                    return {
+                        address: value?.address || '',
+                        isValid: value?.isValid || false,
+                        coords: value?.coords || null,
+                    };
+                }}
+            >
+                <AutoInput
+                    label="Введите адрес отправления"
+                    value={form.getFieldValue('fromAddress')?.address || ''}
+                    onChange={(value) => {
+                        // AutoInput возвращает либо строку, либо AddressData
+                        form.setFieldValue('fromAddress', value);
+                    }}
+                    onValidChange={(isValid) => {
+                        const current = form.getFieldValue('fromAddress');
+                        if (current && typeof current === 'object') {
+                            form.setFieldValue('fromAddress', {
+                                ...current,
+                                isValid,
+                            });
+                        }
+                    }}
+                    fetchSuggestions={fetchAddressSuggestions}
+                />
+            </Form.Item>
+        </Col>
+        <Col span={12}>
+            <Form.Item
+                name="toAddress"
+                label="Адрес доставки"
+                rules={[{ validator: validateAddressSelection }]}
+                getValueFromEvent={(value) => {
+                    if (typeof value === 'string') {
+                        return {
+                            address: value,
+                            isValid: false,
+                            coords: null,
+                        };
+                    }
+                    return value;
+                }}
+                getValueProps={(value) => {
+                    return {
+                        address: value?.address || '',
+                        isValid: value?.isValid || false,
+                        coords: value?.coords || null,
+                    };
+                }}
+            >
+                <AutoInput
+                    label="Введите адрес доставки"
+                    value={form.getFieldValue('toAddress')?.address || ''}
+                    onChange={(value) => {
+                        form.setFieldValue('toAddress', value);
+                    }}
+                    onValidChange={(isValid) => {
+                        const current = form.getFieldValue('toAddress');
+                        if (current && typeof current === 'object') {
+                            form.setFieldValue('toAddress', {
+                                ...current,
+                                isValid,
+                            });
+                        }
+                    }}
+                    fetchSuggestions={fetchAddressSuggestions}
+                />
+            </Form.Item>
+        </Col>
+    </Row>
+</Card>
 
                 {/* Получатель */}
                 <Card

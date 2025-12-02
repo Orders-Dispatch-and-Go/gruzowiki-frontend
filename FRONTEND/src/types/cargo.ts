@@ -4,6 +4,18 @@ export interface Coordinate {
   lon: number;
 }
 
+export interface AddressSuggestion {
+    displayName: string;
+    lat: number;
+    lon: number;
+}
+
+export interface AddressData {
+    address: string;
+    isValid: boolean;
+    coords: Coordinate | null;
+}
+
 export interface Station {
   address: string;
   coords: Coordinate;
