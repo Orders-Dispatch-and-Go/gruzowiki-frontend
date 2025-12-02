@@ -8,14 +8,13 @@ import {
     InputNumber,
     Space,
     Typography,
-    Divider,
     Alert,
     Row,
     Col,
     message,
     Select,
 } from "antd";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+// import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { cargoRequestsApi } from "../api/cargoRequests";
@@ -38,18 +37,16 @@ const ShipperCreateRequestPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [cargoTypes, setCargoTypes] = useState<CargoType[]>([]);
 
-    const [cargoItems, setCargoItems] = useState<CargoFormItem[]>([
-        {
-            key: 1,
-            length: 10,
-            height: 10,
-            width: 10,
-            weight: 1,
-            cargoType: 1,
-            description: "",
-            worth: 0,
-        },
-    ]);
+    const [cargoItem, setCargoItem] = useState<CargoFormItem>({
+        key: 1,
+        length: 10,
+        height: 10,
+        width: 10,
+        weight: 1,
+        cargoType: 1,
+        description: "",
+        worth: 0,
+    });
 
     // Загрузка типов грузов
     useEffect(() => {
@@ -88,68 +85,18 @@ const ShipperCreateRequestPage: React.FC = () => {
         return Promise.resolve();
     };
 
-    const validateDimensions = (value: number | null) => {
-        if (!value || value < 1 || value > 500) {
-            return Promise.reject(new Error("Должно быть от 1 до 500 см"));
-        }
-        return Promise.resolve();
+    // Функция для обновления одного поля груза
+    const updateCargoField = (field: keyof CargoFormItem, value: any) => {
+        setCargoItem(prev => ({ ...prev, [field]: value }));
     };
 
-    const validateWeight = (value: number | null) => {
-        if (!value || value < 1 || value > 1000) {
-            return Promise.reject(new Error("Должно быть от 1 до 1000 кг"));
-        }
-        return Promise.resolve();
+    // Валидация суммы габаритов для одного груза
+    const validateTotalDimensions = (item: CargoFormItem): boolean => {
+        const total = item.length + item.width + item.height;
+        return total <= 1000;
     };
 
-    // Обработчики для грузов
-    const addCargoItem = () => {
-        const newKey =
-            cargoItems.length > 0
-                ? Math.max(...cargoItems.map((item) => item.key)) + 1
-                : 1;
-        setCargoItems([
-            ...cargoItems,
-            {
-                key: newKey,
-                length: 10,
-                height: 10,
-                width: 10,
-                weight: 1,
-                cargoType: 1,
-                description: "",
-                worth: 0,
-            },
-        ]);
-    };
 
-    const removeCargoItem = (key: number) => {
-        if (cargoItems.length <= 1) {
-            message.warning("Должен остаться хотя бы один груз");
-            return;
-        }
-        setCargoItems(cargoItems.filter((item) => item.key !== key));
-    };
-
-    const updateCargoItem = (
-        key: number,
-        field: keyof CargoFormItem,
-        value: any
-    ) => {
-        setCargoItems(
-            cargoItems.map((item) =>
-                item.key === key ? { ...item, [field]: value } : item
-            )
-        );
-    };
-
-    // Проверка суммы габаритов
-    const validateTotalDimensions = (items: CargoFormItem[]): boolean => {
-        return items.every((item) => {
-            const total = item.length + item.width + item.height;
-            return total <= 1000;
-        });
-    };
 
     // Отправка формы
     const handleSubmit = async (values: any) => {
@@ -158,13 +105,8 @@ const ShipperCreateRequestPage: React.FC = () => {
             return;
         }
 
-        if (cargoItems.length === 0) {
-            message.error("Добавьте хотя бы один груз");
-            return;
-        }
-
         // Проверка суммы габаритов
-        if (!validateTotalDimensions(cargoItems)) {
+        if (!validateTotalDimensions(cargoItem)) {
             message.error(
                 "Сумма габаритов (Д+Ш+В) не должна превышать 1000 см для каждого груза"
             );
@@ -214,16 +156,16 @@ const ShipperCreateRequestPage: React.FC = () => {
             );
 
             // 3. Создаем грузы
-            const cargoData: CargoItem[] = cargoItems.map((item) => ({
-                length: item.length,
-                height: item.height,
-                width: item.width,
-                weight: item.weight,
-                cargoType: item.cargoType,
-                description: item.description || "",
-                worth: item.worth,
-                cargoRequestId: requestResponse.id,
-            }));
+            const cargoData: CargoItem[] = [{
+            length: cargoItem.length,
+            height: cargoItem.height,
+            width: cargoItem.width,
+            weight: cargoItem.weight,
+            cargoType: cargoItem.cargoType,
+            description: cargoItem.description || "",
+            worth: cargoItem.worth,
+            cargoRequestId: requestResponse.id,
+        }];
 
             await cargoRequestsApi.createCargo(cargoData);
 
@@ -427,7 +369,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                         <Col span={12}>
                             <Form.Item
                                 name="maxPrice"
-                                label="Максимальная стоимость (руб)"
+                                label="Вознаграждение ₽"
                                 rules={[
                                     {
                                         required: true,
@@ -469,46 +411,20 @@ const ShipperCreateRequestPage: React.FC = () => {
 
                 {/* Грузы */}
                 <Card title="Информация о грузах" style={{ marginBottom: 24 }}>
-                    {cargoItems.map((item, index) => (
-                        <div key={item.key}>
-                            {index > 0 && <Divider />}
 
                             <Space
                                 direction="vertical"
                                 style={{ width: "100%" }}
                                 size="middle"
                             >
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                    }}
-                                >
-                                    <Title level={4} style={{ margin: 0 }}>
-                                        Груз #{index + 1}
-                                    </Title>
-                                    <Button
-                                        type="text"
-                                        danger
-                                        icon={<DeleteOutlined />}
-                                        onClick={() =>
-                                            removeCargoItem(item.key)
-                                        }
-                                        disabled={cargoItems.length <= 1}
-                                    >
-                                        Удалить
-                                    </Button>
-                                </div>
 
                                 <Row gutter={16}>
                                     <Col span={6}>
                                         <Form.Item label="Длина (см)" required>
                                             <InputNumber
-                                                value={item.length}
+                                                value={cargoItem.length}
                                                 onChange={(value) =>
-                                                    updateCargoItem(
-                                                        item.key,
+                                                    updateCargoField(
                                                         "length",
                                                         value || 0
                                                     )
@@ -523,10 +439,9 @@ const ShipperCreateRequestPage: React.FC = () => {
                                     <Col span={6}>
                                         <Form.Item label="Ширина (см)" required>
                                             <InputNumber
-                                                value={item.width}
+                                                value={cargoItem.width}
                                                 onChange={(value) =>
-                                                    updateCargoItem(
-                                                        item.key,
+                                                    updateCargoField(
                                                         "width",
                                                         value || 0
                                                     )
@@ -541,10 +456,9 @@ const ShipperCreateRequestPage: React.FC = () => {
                                     <Col span={6}>
                                         <Form.Item label="Высота (см)" required>
                                             <InputNumber
-                                                value={item.height}
+                                                value={cargoItem.height}
                                                 onChange={(value) =>
-                                                    updateCargoItem(
-                                                        item.key,
+                                                    updateCargoField(
                                                         "height",
                                                         value || 0
                                                     )
@@ -559,10 +473,9 @@ const ShipperCreateRequestPage: React.FC = () => {
                                     <Col span={6}>
                                         <Form.Item label="Вес (кг)" required>
                                             <InputNumber
-                                                value={item.weight}
+                                                value={cargoItem.weight}
                                                 onChange={(value) =>
-                                                    updateCargoItem(
-                                                        item.key,
+                                                    updateCargoField(
                                                         "weight",
                                                         value || 0
                                                     )
@@ -580,10 +493,9 @@ const ShipperCreateRequestPage: React.FC = () => {
                                     <Col span={12}>
                                         <Form.Item label="Тип груза">
                                             <Select
-                                                value={item.cargoType}
+                                                value={cargoItem.cargoType}
                                                 onChange={(value) =>
-                                                    updateCargoItem(
-                                                        item.key,
+                                                    updateCargoField(
                                                         "cargoType",
                                                         value
                                                     )
@@ -607,10 +519,9 @@ const ShipperCreateRequestPage: React.FC = () => {
                                     <Col span={12}>
                                         <Form.Item label="Объявленная ценность (руб)">
                                             <InputNumber
-                                                value={item.worth}
+                                                value={cargoItem.worth}
                                                 onChange={(value) =>
-                                                    updateCargoItem(
-                                                        item.key,
+                                                    updateCargoField(
                                                         "worth",
                                                         value || 0
                                                     )
@@ -640,13 +551,9 @@ const ShipperCreateRequestPage: React.FC = () => {
 
                                 <Form.Item label="Описание груза">
                                     <Input.TextArea
-                                        value={item.description}
+                                        value={cargoItem.description}
                                         onChange={(e) =>
-                                            updateCargoItem(
-                                                item.key,
-                                                "description",
-                                                e.target.value
-                                            )
+                                            updateCargoField("description", e.target.value)
                                         }
                                         placeholder="Описание груза"
                                         maxLength={500}
@@ -655,17 +562,6 @@ const ShipperCreateRequestPage: React.FC = () => {
                                     />
                                 </Form.Item>
                             </Space>
-                        </div>
-                    ))}
-
-                    <Button
-                        type="dashed"
-                        icon={<PlusOutlined />}
-                        onClick={addCargoItem}
-                        style={{ width: "100%" }}
-                    >
-                        Добавить еще груз
-                    </Button>
                 </Card>
 
                 {/* Кнопки отправки */}
