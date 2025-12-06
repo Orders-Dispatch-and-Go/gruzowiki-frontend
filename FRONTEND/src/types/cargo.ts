@@ -1,4 +1,12 @@
 // types/cargo.ts
+
+// for mappicker
+export interface MapLocation {
+  coords: Coordinate;
+  address: string;
+}
+
+
 export interface Coordinate {
   lat: number;
   lon: number;
@@ -13,7 +21,7 @@ export interface AddressSuggestion {
 export interface AddressData {
     address: string;
     isValid: boolean;
-    coords: Coordinate | null;
+    coords?: Coordinate ;
 }
 
 export interface Station {

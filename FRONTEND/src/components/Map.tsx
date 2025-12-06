@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useRef } from 'react';
 
-const CleanOSMMap: React.FC = () => {
+const Map: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -16,13 +17,12 @@ const CleanOSMMap: React.FC = () => {
     // Можно использовать другие OSM-совместимые серверы
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      // Без атрибуции здесь
     }).addTo(map);
 
     // ТОЛЬКО OSM атрибуция
     L.control.attribution({
       position: 'bottomright',
-      prefix: ''  // Важно: пустой префикс
+      prefix: ''
     })
     .addAttribution('© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>')
     .addTo(map);
@@ -50,4 +50,4 @@ const CleanOSMMap: React.FC = () => {
   );
 };
 
-export default CleanOSMMap;
+export default Map;

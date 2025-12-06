@@ -29,6 +29,9 @@ import type {
 import dayjs from "dayjs";
 import AutoInput from "../components/AutoInput";
 import { Content } from "antd/es/layout/layout";
+import MapPicker from "../components/MapPicker";
+import type { MapLocation } from "../types/cargo";
+import HybridAddressInput from "../components/HybridAddressInput";
 
 import Map from "../components/Map";
 
@@ -71,6 +74,32 @@ const ShipperCreateRequestPage: React.FC = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [cargoTypes, setCargoTypes] = useState<CargoType[]>([]);
+    const [fromLocation, setFromLocation] = useState<MapLocation>({
+        coords: { lat: 55.7558, lon: 37.6173 },
+        address: "",
+    });
+    const [toLocation, setToLocation] = useState<MapLocation>({
+        coords: { lat: 59.9343, lon: 30.3351 },
+        address: "",
+    });
+
+    const handleFromLocationSelect = (location: MapLocation) => {
+        setFromLocation(location);
+        form.setFieldValue("fromAddress", {
+            address: location.address || "",
+            isValid: true,
+            coords: location.coords,
+        });
+    };
+
+    const handleToLocationSelect = (location: MapLocation) => {
+        setToLocation(location);
+        form.setFieldValue("toAddress", {
+            address: location.address || "",
+            isValid: true,
+            coords: location.coords,
+        });
+    };
 
     const [cargoItem, setCargoItem] = useState<CargoFormItem>({
         key: 1,
@@ -257,125 +286,52 @@ const ShipperCreateRequestPage: React.FC = () => {
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Form.Item
-                                    name="fromAddress"
                                     label="Адрес отправления"
+                                    name="fromAddress"
                                     rules={[
-                                        { validator: validateAddressSelection },
+                                        {
+                                            required: true,
+                                            message: "Укажите адрес",
+                                        },
                                     ]}
-                                    getValueFromEvent={(value) => {
-                                        // Если приходит строка - это ручной ввод
-                                        if (typeof value === "string") {
-                                            return {
-                                                address: value,
-                                                isValid: false,
-                                                coords: null,
-                                            };
-                                        }
-                                        // Если приходит объект AddressData - это выбор из подсказок
-                                        return value;
-                                    }}
-                                    getValueProps={(value) => {
-                                        // Для правильного отображения в AutoInput
-                                        return {
-                                            address: value?.address || "",
-                                            isValid: value?.isValid || false,
-                                            coords: value?.coords || null,
-                                        };
-                                    }}
+                                    getValueFromEvent={(v) => v}
                                 >
-                                    <AutoInput
-                                        label="Введите адрес отправления"
-                                        value={
-                                            form.getFieldValue("fromAddress")
-                                                ?.address || ""
-                                        }
-                                        onChange={(value) => {
-                                            // AutoInput возвращает либо строку, либо AddressData
-                                            form.setFieldValue(
-                                                "fromAddress",
-                                                value
-                                            );
-                                        }}
-                                        onValidChange={(isValid) => {
-                                            const current =
-                                                form.getFieldValue(
-                                                    "fromAddress"
-                                                );
-                                            if (
-                                                current &&
-                                                typeof current === "object"
-                                            ) {
-                                                form.setFieldValue(
-                                                    "fromAddress",
-                                                    {
-                                                        ...current,
-                                                        isValid,
-                                                    }
-                                                );
-                                            }
-                                        }}
+                                    <HybridAddressInput
+                                        placeholder="Введите адрес или выберите на карте"
                                         fetchSuggestions={
                                             fetchAddressSuggestions
                                         }
+                                        onChange={(v) =>
+                                            form.setFieldValue("fromAddress", v)
+                                        }
+                                        value={form.getFieldValue(
+                                            "fromAddress"
+                                        )}
                                     />
                                 </Form.Item>
                             </Col>
+
                             <Col span={12}>
                                 <Form.Item
-                                    name="toAddress"
                                     label="Адрес доставки"
+                                    name="toAddress"
                                     rules={[
-                                        { validator: validateAddressSelection },
+                                        {
+                                            required: true,
+                                            message: "Укажите адрес",
+                                        },
                                     ]}
-                                    getValueFromEvent={(value) => {
-                                        if (typeof value === "string") {
-                                            return {
-                                                address: value,
-                                                isValid: false,
-                                                coords: null,
-                                            };
-                                        }
-                                        return value;
-                                    }}
-                                    getValueProps={(value) => {
-                                        return {
-                                            address: value?.address || "",
-                                            isValid: value?.isValid || false,
-                                            coords: value?.coords || null,
-                                        };
-                                    }}
+                                    getValueFromEvent={(v) => v}
                                 >
-                                    <AutoInput
-                                        label="Введите адрес доставки"
-                                        value={
-                                            form.getFieldValue("toAddress")
-                                                ?.address || ""
-                                        }
-                                        onChange={(value) => {
-                                            form.setFieldValue(
-                                                "toAddress",
-                                                value
-                                            );
-                                        }}
-                                        onValidChange={(isValid) => {
-                                            const current =
-                                                form.getFieldValue("toAddress");
-                                            if (
-                                                current &&
-                                                typeof current === "object"
-                                            ) {
-                                                form.setFieldValue(
-                                                    "toAddress",
-                                                    {
-                                                        ...current,
-                                                        isValid,
-                                                    }
-                                                );
-                                            }
-                                        }}
+                                    <HybridAddressInput
+                                        placeholder="Введите адрес или выберите на карте"
                                         fetchSuggestions={
                                             fetchAddressSuggestions
                                         }
+                                        onChange={(v) =>
+                                            form.setFieldValue("toAddress", v)
+                                        }
+                                        value={form.getFieldValue("toAddress")}
                                     />
                                 </Form.Item>
                             </Col>
@@ -737,7 +693,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                     </Space>
                 </Form>
 
-                <Map ></Map>
+                <Map></Map>
             </Content>
         </Layout>
     );
