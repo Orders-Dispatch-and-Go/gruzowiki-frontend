@@ -1,0 +1,17 @@
+services:
+  frontend_app:
+    build:
+      context: ./FRONTEND
+      dockerfile: Dockerfile
+    container_name: gruzowiki-frontend
+    ports:
+      - "${FRONTEND_SERVICE_PORT:-3000}:80"
+    restart: unless-stopped
+    networks:
+      - gruzowiki_network
+
+networks:
+  gruzowiki_network:
+    name: gruzowiki-network
+    driver: bridge
+    external: true
