@@ -15,6 +15,7 @@ import ShipperMainPage from "./pages/ShipperMainPage";
 import MainLayout from "./layout/MainLayout";
 import ShipperProfilePage from "./pages/ShipperProfilePage";
 import ShipperCreateRequestPage from "./pages/ShipperCreateRequestPage";
+import ConsignerPlaceholderPage from "./pages/ConsignerPlaceholderPage";
 import 'leaflet/dist/leaflet.css';
 
 
@@ -43,23 +44,25 @@ export default function App(): React.JSX.Element {
                         </RequireAuth>
                     }
                 >
-                    <Route path="main" element={<ShipperMainPage />} />
+                    <Route path="home" element={<ShipperMainPage />} />
                     <Route path="profile" element={<ShipperProfilePage />} />
                     <Route path="create-request" element={<ShipperCreateRequestPage />} />
                     {/* Здесь будут другие маршруты грузоотправителя */}
                 </Route>
 
-                {/* Прямые маршруты для редиректа после логина */}
+                {/* Маршруты для грузоперевозчика */}
                 <Route
-                    path="/shipper/main"
+                    path="/carrier"
                     element={
                         <RequireAuth>
                             <MainLayout />
                         </RequireAuth>
                     }
                 >
-                    <Route index element={<ShipperMainPage />} />
+                    <Route path="home" element={<ConsignerPlaceholderPage />} />
+                    {/* Здесь будут другие маршруты грузоотправителя */}
                 </Route>
+
 
                 {/* Запасной маршрут */}
                 <Route path="*" element={<HomeRedirect />} />

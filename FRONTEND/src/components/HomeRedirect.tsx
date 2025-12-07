@@ -16,10 +16,10 @@ export default function HomeRedirect() {
     if (isAuthenticated) {
       // Редирект в зависимости от роли пользователя
       if (user?.role === 'ROLE_CARRIER') {
-        navigate("/carrier/main", { replace: true });
+        navigate("/carrier/home", { replace: true });
       } else {
         // По умолчанию на страницу грузоотправителя
-        navigate("/shipper/main", { replace: true });
+        navigate("/shipper/home", { replace: true });
       }
     } else {
       navigate("/login", { replace: true });

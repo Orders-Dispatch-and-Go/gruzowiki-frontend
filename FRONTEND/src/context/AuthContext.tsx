@@ -11,20 +11,14 @@ import client from "../api/client";
 /**
  * Типы
  */
-// export type User = {
-//   id: string;
-//   email: string;
-//   name?: string;
-//   role?: 'ROLE_CONSIGNER' | 'ROLE_CARRIER';
-// };
 
-// В AuthContext.tsx обновим тип User
 export type User = {
     id: string;
     email: string;
     name?: string;
+    // ROLE_CONSIGNER = shipper - отправитель
+    // ROLE_CARRIER - перевозчик
     role?: "ROLE_CONSIGNER" | "ROLE_CARRIER";
-    // Добавляем поля для профиля из users.ts
     firstName?: string;
     lastName?: string;
     middleName?: string;

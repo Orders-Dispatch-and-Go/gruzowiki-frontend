@@ -26,21 +26,50 @@ export async function doLogin(payload: LoginPayload) {
 
     console.log("📨 Ответ от sign_in:", res.data);
 
-    // Сервер возвращает { accessToken: "..." }
     if (res.data.accessToken) {
-      // Нужно получить данные пользователя отдельным запросом
-      // Или создать временного пользователя из того что есть
-      return { 
-        ok: true, 
-        data: {
-          token: res.data.accessToken,
-          user: {
-            id: "5", // временно, из токена видно "sub":"5"
-            email: payload.email,
-            role: 'ROLE_CARRIER' // из токена видно "ROLE_CARRIER"
-          }
+      // 🔐 Сохраняем токен в localStorage
+      localStorage.setItem("token", res.data.accessToken);
+      
+      // 🎯 Декодируем токен чтобы получить роль
+      try {
+        const payload = JSON.parse(atob(res.data.accessToken.split('.')[1]));
+        console.log("🎯 Декодированный токен:", payload);
+        
+        // Ищем роль
+        let role = 'ROLE_CONSIGNER'; // по умолчанию
+        if (payload.userAuthorities && payload.userAuthorities.length > 0) {
+          role = payload.userAuthorities[0];
         }
-      };
+        
+        console.log("🎯 Роль из токена:", role);
+        
+        return { 
+          ok: true, 
+          data: {
+            token: res.data.accessToken,
+            user: {
+              id: payload.sub || "unknown",
+              email: payload.email || payload.userData?.email || payload.login,
+              role: role
+            }
+          }
+        };
+      } catch (decodeErr) {
+        console.error("❌ Ошибка декодирования токена:", decodeErr);
+        
+        // Если не удалось декодировать, используем по умолчанию
+        return { 
+          ok: true, 
+          data: {
+            token: res.data.accessToken,
+            user: {
+              id: "unknown",
+              email: payload.email,
+              role: 'ROLE_CONSIGNER'
+            }
+          }
+        };
+      }
     }
 
     return { ok: true, data: res.data };
@@ -60,20 +89,6 @@ export async function doLogin(payload: LoginPayload) {
     return { ok: false, code: "NETWORK_ERROR", message: "Сервер недоступен" };
   }
 }
-
-
-// export async function doRegister(payload: any) {
-//   try {
-//     const res = await client.post("/auth/sign_up", payload);
-//     return { ok: true, data: res.data };
-//   } catch (err: any) {
-//     if (err.response) {
-//       return { ok: false, code: err.response.data?.code, message: err.response.data?.message };
-//     }
-//     return { ok: false, code: "NETWORK_ERROR", message: "Сервер недоступен" };
-//   }
-// }
-
 
 export async function doRegister(payload: RegisterPayload) {
   try {

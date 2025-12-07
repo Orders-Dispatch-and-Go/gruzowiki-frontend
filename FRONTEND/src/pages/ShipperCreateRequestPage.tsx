@@ -692,8 +692,6 @@ const ShipperCreateRequestPage: React.FC = () => {
                         </Button>
                     </Space>
                 </Form>
-
-                <Map></Map>
             </Content>
         </Layout>
     );

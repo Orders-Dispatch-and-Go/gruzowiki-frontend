@@ -48,7 +48,7 @@ export default function RegisterPage(): React.JSX.Element {
     const [loading, setLoading] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [emailVerified, setEmailVerified] = useState(false);
+    // const [emailVerified, setEmailVerified] = useState(false);
     const [codeSent, setCodeSent] = useState(false);
     const [registerForm] = Form.useForm();
     const [profileForm] = Form.useForm();
@@ -93,47 +93,49 @@ export default function RegisterPage(): React.JSX.Element {
         }
     };
 
-    // Обработчик проверки кода
-    const handleCodeSubmit = async () => {
-        const code = registerForm.getFieldValue("code");
-        const email = registerForm.getFieldValue("email");
+    // // Обработчик проверки кода
+    // const handleCodeSubmit = async () => {
+    //     const code = registerForm.getFieldValue("code");
+    //     const email = registerForm.getFieldValue("email");
 
-        if (!code || code.length !== 12) {
-            setServerError("Код должен содержать 12 цифр");
-            return;
-        }
+    //     if (!code || code.length !== 12) {
+    //         setServerError("Код должен содержать 12 цифр");
+    //         return;
+    //     }
 
-        setLoading(true);
-        setServerError(null);
+    //     setLoading(true);
+    //     setServerError(null);
 
-        try {
-            // Здесь должна быть проверка кода на сервере
-            // Пока имитируем успешную проверку
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+    //     try {
+    //         // Здесь должна быть проверка кода на сервере
+    //         // Пока имитируем успешную проверку
+    //         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-            // Если код верный
-            setEmailVerified(true);
-            setSuccessMessage("Email подтвержден! Заполните остальные данные.");
-            sessionStorage.setItem("registration_in_progress", "true");
-            sessionStorage.setItem("registration_email", email);
-            sessionStorage.setItem(
-                "registration_role",
-                registerForm.getFieldValue("role")
-            );
-        } catch {
-            setServerError("Неверный код подтверждения");
-            registerForm.setFieldValue("code", ""); // Очищаем поле при ошибке
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         // Если код верный
+    //         setEmailVerified(true);
+    //         setSuccessMessage("Email подтвержден! Заполните остальные данные.");
+    //         sessionStorage.setItem("registration_in_progress", "true");
+    //         sessionStorage.setItem("registration_email", email);
+    //         sessionStorage.setItem(
+    //             "registration_role",
+    //             registerForm.getFieldValue("role")
+    //         );
+    //     } catch {
+    //         setServerError("Неверный код подтверждения");
+    //         registerForm.setFieldValue("code", ""); // Очищаем поле при ошибке
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     // Обработчик первой формы (регистрация)
     const onRegisterFinish = async (values: RegisterFormData) => {
-        if (!emailVerified) {
-            setServerError("Сначала подтвердите email");
-            return;
-        }
+        console.log("Регистрационные данные:", values);
+        console.log("Роль из формы:", values.role);
+        // if (!emailVerified) {
+        //     setServerError("Сначала подтвердите email");
+        //     return;
+        // }
 
         setServerError(null);
         setLoading(true);
@@ -177,6 +179,7 @@ export default function RegisterPage(): React.JSX.Element {
                 "registration_password"
             );
             const registerRole = sessionStorage.getItem("registration_role");
+            console.log("role = " + registerRole);
 
             // Проверяем что все обязательные поля есть
             if (!registerEmail || !registerPassword || !registerRole) {
@@ -201,6 +204,7 @@ export default function RegisterPage(): React.JSX.Element {
                     ? profileData.birthDate.format("YYYY-MM-DD")
                     : "",
             };
+            console.log(fullData);
 
             const res = await doRegister(fullData);
             if (!res.ok) {
@@ -302,7 +306,7 @@ export default function RegisterPage(): React.JSX.Element {
                                     layout="vertical"
                                     onFinish={onRegisterFinish}
                                     requiredMark={false}
-                                    initialValues={{ role: "shipper" }}
+                                    initialValues={{ role: "ROLE_CONSIGNER" }}
                                 >
                                     <Form.Item
                                         label="Email"
@@ -420,7 +424,7 @@ export default function RegisterPage(): React.JSX.Element {
                                             size="large"
                                         />
                                     </Form.Item>
-
+{/* 
                                     {codeSent && (
                                         <Form.Item
                                             label="Код подтверждения (12 цифр)"
@@ -444,7 +448,6 @@ export default function RegisterPage(): React.JSX.Element {
                                             />
                                         </Form.Item>
                                     )}
-
                                     <Form.Item>
                                         {!codeSent ? (
                                             <Button
@@ -467,7 +470,7 @@ export default function RegisterPage(): React.JSX.Element {
                                                 Проверить код
                                             </Button>
                                         ) : null}
-                                    </Form.Item>
+                                    </Form.Item> */}
 
                                     <Form.Item style={{ marginBottom: 0 }}>
                                         <Button
@@ -475,7 +478,7 @@ export default function RegisterPage(): React.JSX.Element {
                                             htmlType="submit"
                                             block
                                             size="large"
-                                            disabled={!emailVerified}
+                                            // disabled={!emailVerified}
                                             loading={loading}
                                             style={{
                                                 backgroundColor: "orange",

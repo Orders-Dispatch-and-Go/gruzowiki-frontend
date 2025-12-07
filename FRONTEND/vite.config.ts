@@ -18,6 +18,11 @@ export default defineConfig({
         target: 'http://51.250.34.151:8074',
         changeOrigin: true,
         secure: false,
+      },
+      '/users': {
+        target: 'http://51.250.34.151:8074',
+        changeOrigin: true,
+        secure: false,
       }
     }
   }
