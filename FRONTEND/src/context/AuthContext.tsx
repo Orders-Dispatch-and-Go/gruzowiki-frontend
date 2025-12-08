@@ -65,20 +65,25 @@ const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 const LS_KEY = "myapp_auth_v1";
 const SS_KEY = "myapp_auth_session_v1";
 
+
 function loadFromStorage(): { user: User | null; token: string | null } {
     try {
         const rawLocal = localStorage.getItem(LS_KEY);
         if (rawLocal) {
+            console.log("AuthContext: Loading from localStorage", rawLocal);
             const parsed = JSON.parse(rawLocal);
             return { user: parsed.user ?? null, token: parsed.token ?? null };
         }
         const rawSession = sessionStorage.getItem(SS_KEY);
         if (rawSession) {
+            console.log("AuthContext: Loading from sessionStorage", rawSession);
             const parsed = JSON.parse(rawSession);
             return { user: parsed.user ?? null, token: parsed.token ?? null };
         }
+        console.log("AuthContext: No auth data in storage");
         return { user: null, token: null };
-    } catch {
+    } catch (error) {
+        console.error("AuthContext: Error loading from storage", error);
         return { user: null, token: null };
     }
 }
@@ -90,27 +95,30 @@ function saveToStorage(
 ) {
     try {
         const payload = JSON.stringify({ user, token });
+        console.log("AuthContext: Saving to storage", { user, token, remember });
         if (remember) {
             localStorage.setItem(LS_KEY, payload);
             sessionStorage.removeItem(SS_KEY);
         } else {
-            // сохраняем во временное хранилище, которое очистится при закрытии вкладки
             sessionStorage.setItem(SS_KEY, payload);
             localStorage.removeItem(LS_KEY);
         }
-    } catch {
-        // ignore
+    } catch (error) {
+        console.error("AuthContext: Error saving to storage", error);
     }
 }
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const initial = loadFromStorage();
+    console.log("AuthProvider: Initial state", initial);
+    
     const [user, setUser] = useState<User | null>(initial.user);
     const [token, setToken] = useState<string | null>(initial.token);
     const [loading, setLoading] = useState<boolean>(false);
 
     // Устанавливаем заголовок Authorization для всех запросов axios
     useEffect(() => {
+        console.log("AuthProvider: Setting axios headers", { token });
         if (token) {
             client.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         } else {
@@ -118,13 +126,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [token]);
 
+    // const login = (t: string, u: User | null = null, remember = true) => {
+    //     console.log("AuthContext: login called", { token: t, user: u, remember });
+    //     setUser(u);
+    //     setToken(t);
+    //     saveToStorage(u, t, remember);
+    // };
+
     const login = (t: string, u: User | null = null, remember = true) => {
-        setUser(u);
-        setToken(t);
-        saveToStorage(u, t, remember);
-    };
+    console.log("AuthContext: login called", { token: t, user: u, remember });
+
+    const normalizedUser = u
+        ? {
+              id: u.id,
+              email: u.email,
+              name: u.name ?? "",
+              role: u.role ?? "ROLE_CONSIGNER",
+              firstName: u.firstName ?? "",
+              lastName: u.lastName ?? "",
+              middleName: u.middleName ?? "",
+              phone: u.phone ?? "",
+              birthDate: u.birthDate ?? "",
+              licenseCategories: u.licenseCategories ?? "",
+          }
+        : null;
+
+    setUser(normalizedUser);
+    setToken(t);
+    saveToStorage(normalizedUser, t, remember);
+};
+
 
     const logout = () => {
+        console.log("AuthContext: logout called");
         setUser(null);
         setToken(null);
         try {
@@ -133,10 +167,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch {}
         delete client.defaults.headers.common["Authorization"];
     };
-    // И в реализации AuthProvider добавим:
-    // В AuthContext.tsx замени функцию updateUser на:
+    
     const updateUser = useCallback((userData: Partial<User>) => {
-        setUser((prev) => (prev ? { ...prev, ...userData } : null));
+        console.log("AuthContext: updateUser called", userData);
+        setUser((prev) => {
+            const updated = prev ? { ...prev, ...userData } : null;
+            console.log("AuthContext: user updated", { prev, updated });
+            return updated;
+        });
     }, []);
 
     const value: AuthContextType = {
@@ -149,6 +187,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading,
         updateUser,
     };
+    
+    console.log("AuthProvider: Rendering with value", {
+        user,
+        token,
+        isAuthenticated: !!user,
+        loading
+    });
 
     return (
         <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

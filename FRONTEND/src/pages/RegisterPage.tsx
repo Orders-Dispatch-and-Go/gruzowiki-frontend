@@ -157,101 +157,251 @@ export default function RegisterPage(): React.JSX.Element {
             setLoading(false);
         }
     };
+    const getValidRole = (role: string): "ROLE_CONSIGNER" | "ROLE_CARRIER" => {
+        if (role === "ROLE_CONSIGNER" || role === "ROLE_CARRIER") {
+            return role;
+        }
+        console.log("stupid role " + role);
+        // Значение по умолчанию или ошибка
+        throw new Error("Invalid role");
+        // или: return "ROLE_CONSIGNER"; // значение по умолчанию
+    };
+
+    // // Обработчик второй формы (профиль)
+    // const onProfileFinish = async (values: UserProfileData) => {
+    //     if (!values.agree) {
+    //         setServerError(
+    //             "Вы должны согласиться на обработку персональных данных"
+    //         );
+    //         return;
+    //     }
+
+    //     setServerError(null);
+    //     setLoading(true);
+
+    //     try {
+    //         // Получаем данные из обеих форм
+    //         const registerData = registerForm.getFieldsValue();
+    //         const profileData = values;
+    //         const registerEmail = sessionStorage.getItem("registration_email");
+    //         const registerPassword = sessionStorage.getItem(
+    //             "registration_password"
+    //         );
+    //         const registerRole = sessionStorage.getItem("registration_role");
+    //         console.log("role = " + registerRole);
+
+    //         // Проверяем что все обязательные поля есть
+    //         if (!registerEmail || !registerPassword || !registerRole) {
+    //             setServerError("Данные регистрации потеряны. Начните заново.");
+    //             return;
+    //         }
+
+    //         // Формируем данные согласно API
+    //         const fullData = {
+    //             email: registerEmail,
+    //             password: registerPassword,
+    //             firstName: profileData.firstName,
+    //             secondName: profileData.lastName,
+    //             thirdName: profileData.middleName || "",
+    //             phone: profileData.phone || "",
+    //             // тут немного дичь
+    //             // role:
+    //             //     registerData.role === "ROLE_CONSIGNER"
+    //             //         ? "ROLE_CONSIGNER"
+    //             //         : ("ROLE_CARRIER" as "ROLE_CONSIGNER" | "ROLE_CARRIER"),
+    //             role: getValidRole(registerRole),
+    //             birthdate: profileData.birthDate
+    //                 ? profileData.birthDate.format("YYYY-MM-DD")
+    //                 : "",
+    //         };
+    //         console.log(fullData);
+
+    //         const res = await doRegister(fullData);
+    //         if (!res.ok) {
+    //             setServerError(res.message ?? "Ошибка регистрации");
+    //             return;
+    //         }
+
+    //         // ЗАЩИТА ОТ UNDEFINED
+    //         const responseData = res.data || {};
+
+    //         // Успешная регистрация
+    //         sessionStorage.removeItem("registration_in_progress");
+    //         sessionStorage.removeItem("registration_email");
+    //         sessionStorage.removeItem("registration_role");
+    //         sessionStorage.removeItem("registration_password");
+    //         э;
+
+    //         console.log("tryong to login");
+
+    //         // Автоматически логинимся
+    //         const loginRes = await doLogin({
+    //             email: registerEmail,
+    //             password: registerPassword,
+    //         });
+
+    //         console.log("🔑 Ответ от логина:", loginRes);
+
+    //         if (loginRes.ok && loginRes.data.accessToken) {
+    //             const userRole = registerRole as
+    //                 | "ROLE_CONSIGNER"
+    //                 | "ROLE_CARRIER";
+    //             const userData = {
+    //                 id: loginRes.data.id?.toString() || "",
+    //                 email: registerEmail,
+    //                 name: `${values.firstName} ${values.lastName}`,
+    //                 role: userRole,
+    //                 firstName: values.firstName,
+    //                 lastName: values.lastName,
+    //                 middleName: values.middleName || "",
+    //                 phone: values.phone || "",
+    //                 birthDate: values.birthDate
+    //                     ? values.birthDate.format("YYYY-MM-DD")
+    //                     : "",
+    //             };
+
+    //             console.log("🔑 Вызываем login() с данными:", {
+    //                 token: loginRes.data.accessToken,
+    //                 user: userData,
+    //                 remember: true,
+    //             });
+
+    //             // Ключевой момент: вызываем login из AuthContext
+    //             login(loginRes.data.accessToken, userData, true);
+
+    //             // Редирект в зависимости от роли
+    //             let redirectTo = "/shipper/home";
+    //             if (userRole === "ROLE_CARRIER") {
+    //                 redirectTo = "/carrier/home";
+    //             }
+
+    //             console.log("🔄 Редирект на:", redirectTo);
+    //             navigate(redirectTo, { replace: true });
+    //         } else {
+    //             // Если авто-логин не сработал
+    //             setSuccessMessage("Регистрация успешна! Войдите в систему.");
+    //             navigate("/login");
+    //         }
+    //     } catch {
+    //         setServerError("Сервер недоступен");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
 
     // Обработчик второй формы (профиль)
-    const onProfileFinish = async (values: UserProfileData) => {
-        if (!values.agree) {
-            setServerError(
-                "Вы должны согласиться на обработку персональных данных"
-            );
+const onProfileFinish = async (values: UserProfileData) => {
+    if (!values.agree) {
+        setServerError(
+            "Вы должны согласиться на обработку персональных данных"
+        );
+        return;
+    }
+
+    setServerError(null);
+    setLoading(true);
+
+    try {
+        // Получаем данные из sessionStorage
+        const registerEmail = sessionStorage.getItem("registration_email");
+        const registerPassword = sessionStorage.getItem(
+            "registration_password"
+        );
+        const registerRole = sessionStorage.getItem("registration_role");
+        console.log("role = " + registerRole);
+
+        // Проверяем что все обязательные поля есть
+        if (!registerEmail || !registerPassword || !registerRole) {
+            setServerError("Данные регистрации потеряны. Начните заново.");
             return;
         }
 
-        setServerError(null);
-        setLoading(true);
+        // Формируем данные согласно API
+        const fullData = {
+            email: registerEmail,
+            password: registerPassword,
+            firstName: values.firstName,
+            secondName: values.lastName,
+            thirdName: values.middleName || "",
+            phone: values.phone || "",
+            role: registerRole as "ROLE_CONSIGNER" | "ROLE_CARRIER",
+            birthdate: values.birthDate
+                ? values.birthDate.format("YYYY-MM-DD")
+                : "",
+        };
+        console.log("Отправляем данные регистрации:", fullData);
 
-        try {
-            // Получаем данные из обеих форм
-            const registerData = registerForm.getFieldsValue();
-            const profileData = values;
-            const registerEmail = sessionStorage.getItem("registration_email");
-            const registerPassword = sessionStorage.getItem(
-                "registration_password"
-            );
-            const registerRole = sessionStorage.getItem("registration_role");
-            console.log("role = " + registerRole);
+        const res = await doRegister(fullData);
+        if (!res.ok) {
+            setServerError(res.message ?? "Ошибка регистрации");
+            return;
+        }
 
-            // Проверяем что все обязательные поля есть
-            if (!registerEmail || !registerPassword || !registerRole) {
-                setServerError("Данные регистрации потеряны. Начните заново.");
-                return;
-            }
+        console.log("Регистрация успешна, логинимся...");
 
-            // Формируем данные согласно API
-            const fullData = {
+        // Автоматически логинимся
+        const loginRes = await doLogin({
+            email: registerEmail,
+            password: registerPassword,
+        });
+
+        console.log("Ответ от логина:", loginRes);
+
+        if (loginRes.ok && loginRes.data.accessToken) {
+            const userRole = registerRole as "ROLE_CONSIGNER" | "ROLE_CARRIER";
+            const userData = {
+                id: loginRes.data.id?.toString() || "",
                 email: registerEmail,
-                password: registerPassword,
-                firstName: profileData.firstName,
-                secondName: profileData.lastName,
-                thirdName: profileData.middleName || "",
-                phone: profileData.phone || "",
-                // тут немного дичь
-                role:
-                    registerData.role === "ROLE_CONSIGNER"
-                        ? "ROLE_CONSIGNER"
-                        : ("ROLE_CARRIER" as "ROLE_CONSIGNER" | "ROLE_CARRIER"),
-                birthdate: profileData.birthDate
-                    ? profileData.birthDate.format("YYYY-MM-DD")
+                name: `${values.firstName} ${values.lastName}`,
+                role: userRole,
+                firstName: values.firstName,
+                lastName: values.lastName,
+                middleName: values.middleName || "",
+                phone: values.phone || "",
+                birthDate: values.birthDate
+                    ? values.birthDate.format("YYYY-MM-DD")
                     : "",
             };
-            console.log(fullData);
-
-            const res = await doRegister(fullData);
-            if (!res.ok) {
-                setServerError(res.message ?? "Ошибка регистрации");
-                return;
-            }
-
-            // ЗАЩИТА ОТ UNDEFINED
-            const responseData = res.data || {};
-
-            // Успешная регистрация
+            
+            console.log("Вызываем login() с данными:", {
+                token: loginRes.data.accessToken,
+                user: userData,
+                remember: true
+            });
+            
+            login(
+                loginRes.data.accessToken,
+                userData,
+                true
+            );
             sessionStorage.removeItem("registration_in_progress");
             sessionStorage.removeItem("registration_email");
             sessionStorage.removeItem("registration_role");
             sessionStorage.removeItem("registration_password");
-
-            // Автоматически логинимся
-            const loginRes = await doLogin({
-                email: registerEmail,
-                password: registerPassword,
-            });
-
-            if (loginRes.ok && loginRes.data.accessToken) {
-                // Используем реальный токен
-                login(
-                    loginRes.data.accessToken,
-                    {
-                        id: loginRes.data.id?.toString(),
-                        email: registerEmail,
-                        name: `${values.firstName} ${values.lastName}`,
-                        role: registerRole as any,
-                    },
-                    true
-                );
-                navigate("/dashboard");
-            } else {
-                // Если авто-логин не сработал
-                setSuccessMessage("Регистрация успешна! Войдите в систему.");
-                navigate("/login");
+            
+            // Редирект в зависимости от роли
+            let redirectTo = "/shipper/home";
+            if (userRole === "ROLE_CARRIER") {
+                redirectTo = "/carrier/home";
             }
-
-        } catch {
-            setServerError("Сервер недоступен");
-        } finally {
-            setLoading(false);
+            
+            console.log("Редирект на:", redirectTo);
+            navigate(redirectTo, { replace: true });
+            
+        } else {
+            // Если авто-логин не сработал
+            setSuccessMessage("Регистрация успешна! Войдите в систему.");
+            navigate("/login", { replace: true });
         }
-    };
+
+    } catch (error) {
+        console.error("Ошибка в onProfileFinish:", error);
+        setServerError("Сервер недоступен");
+    } finally {
+        setLoading(false);
+    }
+};
 
     // Возврат к предыдущему шагу
     const handleBack = () => {
@@ -424,7 +574,7 @@ export default function RegisterPage(): React.JSX.Element {
                                             size="large"
                                         />
                                     </Form.Item>
-{/* 
+                                    {/* 
                                     {codeSent && (
                                         <Form.Item
                                             label="Код подтверждения (12 цифр)"

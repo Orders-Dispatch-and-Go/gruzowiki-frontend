@@ -64,7 +64,7 @@ export default function LoginPage(): React.JSX.Element {
             } else {
                 if (res.data?.token) {
                     const { user, token } = res.data;
-                    login(token, null, values.remember);
+                    // login(token, null, values.remember);
 
                     try {
                         const userResponse = await usersApi.getCurrentUser();

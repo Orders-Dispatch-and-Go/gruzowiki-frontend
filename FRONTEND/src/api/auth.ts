@@ -27,21 +27,21 @@ export async function doLogin(payload: LoginPayload) {
     console.log("📨 Ответ от sign_in:", res.data);
 
     if (res.data.accessToken) {
-      // 🔐 Сохраняем токен в localStorage
+      // Сохраняем токен в localStorage
       localStorage.setItem("token", res.data.accessToken);
       
-      // 🎯 Декодируем токен чтобы получить роль
+      // Декодируем токен чтобы получить роль
       try {
         const payload = JSON.parse(atob(res.data.accessToken.split('.')[1]));
         console.log("🎯 Декодированный токен:", payload);
         
         // Ищем роль
-        let role = 'ROLE_CONSIGNER'; // по умолчанию
+        let role = 'ROLE_CONSIGNER';
         if (payload.userAuthorities && payload.userAuthorities.length > 0) {
           role = payload.userAuthorities[0];
         }
         
-        console.log("🎯 Роль из токена:", role);
+        console.log("Роль из токена:", role);
         
         return { 
           ok: true, 
@@ -55,7 +55,7 @@ export async function doLogin(payload: LoginPayload) {
           }
         };
       } catch (decodeErr) {
-        console.error("❌ Ошибка декодирования токена:", decodeErr);
+        console.error("Ошибка декодирования токена:", decodeErr);
         
         // Если не удалось декодировать, используем по умолчанию
         return { 
@@ -75,7 +75,7 @@ export async function doLogin(payload: LoginPayload) {
     return { ok: true, data: res.data };
     
   } catch (err: any) {
-    console.error("❌ Ошибка sign_in:", err.response?.data);
+    console.error("Ошибка sign_in:", err.response?.data);
     
     if (err.response) {
       return {
