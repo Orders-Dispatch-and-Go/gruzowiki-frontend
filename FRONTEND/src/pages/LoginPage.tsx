@@ -67,6 +67,19 @@ export default function LoginPage(): React.JSX.Element {
                     // login(token, null, values.remember);
 
                     try {
+                        // const payloadBase64 = token.split(".")[1];
+                        // const decodedJson = atob(payloadBase64);
+                        // const payload = JSON.parse(decodedJson);
+
+                        // console.log("=== ДЕКОДИРОВАННЫЙ ТОКЕН ===");
+                        // console.log("Subject:", payload.sub);
+                        // console.log("Authorities:", payload.userAuthorities);
+                        // console.log("User Data:", payload.userData);
+                        // console.log("=== КОНЕЦ ===");
+
+                        // const userRoleFromToken = payload.userAuthorities?.[0];
+                        // console.log("Роль из токена:", userRoleFromToken);
+
                         const userResponse = await usersApi.getCurrentUser();
                         console.log("Данные пользователя:", userResponse);
 
@@ -76,9 +89,7 @@ export default function LoginPage(): React.JSX.Element {
                             id: userResponse.id.toString(),
                             email: userResponse.email,
                             name: `${userResponse.firstName} ${userResponse.secondName}`,
-                            role: userResponse.rolesId.includes(1)
-                                ? "ROLE_CONSIGNER"
-                                : "ROLE_CARRIER", // нужно уточнить маппинг ролей
+                            role: res.data.user.role,
                         };
 
                         // Обновляем контекст с пользователем
@@ -94,7 +105,7 @@ export default function LoginPage(): React.JSX.Element {
                         setTimeout(() => navigate(redirectTo), 800);
                     } catch (userErr) {
                         console.error(
-                            "❌ Ошибка получения данных пользователя:",
+                            "Ошибка получения данных пользователя:",
                             userErr
                         );
                         setServerError("Ошибка загрузки данных пользователя");

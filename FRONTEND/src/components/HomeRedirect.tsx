@@ -1,4 +1,3 @@
-// src/components/HomeRedirect.tsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -14,11 +13,9 @@ export default function HomeRedirect() {
     if (loading) return;
 
     if (isAuthenticated) {
-      // Редирект в зависимости от роли пользователя
       if (user?.role === 'ROLE_CARRIER') {
         navigate("/carrier/home", { replace: true });
       } else {
-        // По умолчанию на страницу грузоотправителя
         navigate("/shipper/home", { replace: true });
       }
     } else {

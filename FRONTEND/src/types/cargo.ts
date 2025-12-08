@@ -1,5 +1,3 @@
-// types/cargo.ts
-
 // for mappicker
 export interface MapLocation {
   coords: Coordinate;

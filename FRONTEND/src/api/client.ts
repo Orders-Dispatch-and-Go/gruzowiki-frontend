@@ -21,7 +21,7 @@ client.interceptors.request.use((request) => {
     if (token) {
         request.headers.Authorization = `Bearer ${token}`;
         console.log(
-            "🔐 Добавляем токен в заголовок:",
+            "Добавляем токен в заголовок:",
             token.substring(0, 20) + "..."
         );
     }
@@ -37,7 +37,7 @@ client.interceptors.request.use((request) => {
 
 client.interceptors.response.use(
     (response) => {
-        console.log("✅ Получен ответ:", response.status, response.data);
+        console.log("Получен ответ:", response.status, response.data);
         return response;
     },
     (error) => {
@@ -48,19 +48,18 @@ client.interceptors.response.use(
         );
         console.log("URL ошибки:", error.config?.baseURL + error.config?.url);
         console.log("Метод:", error.config?.method);
-console.log("📝 Отправленные данные:", error.config?.data);
-        console.log("📝 Заголовки:", error.config?.headers);
+console.log("Отправленные данные:", error.config?.data);
+        console.log("Заголовки:", error.config?.headers);
         
         // Показываем полные детали ошибки
         if (error.response?.data) {
-            console.log("📝 Детали ошибки от сервера:", JSON.stringify(error.response.data, null, 2));
+            console.log("Детали ошибки от сервера:", JSON.stringify(error.response.data, null, 2));
         }
 
         // Если 401 - токен невалидный
         if (error.response?.status === 401) {
-            console.log("⚠️ Токен невалидный, нужен выход");
+            console.log("Токен невалидный, нужен выход");
             localStorage.removeItem("token");
-            // Можно добавить редирект на логин
             window.location.href = "/login";
         }
         return Promise.reject(error);

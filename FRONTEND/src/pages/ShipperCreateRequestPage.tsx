@@ -245,7 +245,7 @@ const ShipperCreateRequestPage: React.FC = () => {
             message.success("Заявка успешно создана!");
 
             // Редирект на главную страницу
-            navigate("/shipper/main");
+            navigate("/shipper/home");
         } catch (error: any) {
             console.error("Error creating request:", error);
             message.error("Ошибка при создании заявки");
@@ -685,7 +685,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                             Создать заявку
                         </Button>
                         <Button
-                            onClick={() => navigate("/shipper/main")}
+                            onClick={() => navigate("/shipper/home")}
                             size="large"
                         >
                             Отмена

@@ -12,25 +12,12 @@ const ShipperProfilePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
 
-  // Загрузка данных пользователя
   const loadUserData = useCallback(async () => {
     try {
       setLoading(true);
       const userResponse = await usersApi.getCurrentUser();
       setUserData(userResponse);
-      
-      // Обновляем контекст с полными данными
-      updateUser({
-        id: userResponse.id.toString(),
-        email: userResponse.email,
-        name: `${userResponse.firstName} ${userResponse.secondName}`,
-        role: userResponse.rolesId.includes(1) ? 'ROLE_CONSIGNER' : 'ROLE_CARRIER',
-        firstName: userResponse.firstName,
-        lastName: userResponse.secondName,
-        middleName: userResponse.thirdName,
-        phone: userResponse.phone,
-        birthDate: userResponse.birthdate,
-      });
+
     } catch (err: any) {
       setError('Ошибка загрузки данных пользователя');
       console.error('Error loading user data:', err);
@@ -82,7 +69,7 @@ const ShipperProfilePage: React.FC = () => {
               type="primary" 
               icon={<EditOutlined />} 
               onClick={handleEditClick}
-              disabled // Кнопка неактивна, как ты хотела
+              disabled
             >
               Изменить сведения
             </Button>
@@ -108,7 +95,7 @@ const ShipperProfilePage: React.FC = () => {
               {user?.birthDate || (userData?.birthdate ? new Date(userData.birthdate).toLocaleDateString('ru-RU') : 'Не указана')}
             </Descriptions.Item>
             <Descriptions.Item label="Роль">
-              {user?.role === 'ROLE_CONSIGNER' ? 'Грузоотправитель' : 'Грузоперевозчик'}
+              {user?.role === "ROLE_CONSIGNER" ? 'Грузоотправитель' : 'Грузоперевозчик'}
             </Descriptions.Item>
             {user?.role === 'ROLE_CARRIER' && (
               <Descriptions.Item label="Категории прав">

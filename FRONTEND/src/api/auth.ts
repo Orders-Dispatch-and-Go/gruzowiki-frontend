@@ -15,8 +15,6 @@ type RegisterPayload = {
 };
 
 
-
-// api/auth.ts
 export async function doLogin(payload: LoginPayload) {
   try {
     const res = await client.post("/auth/sign_in", {
@@ -24,7 +22,7 @@ export async function doLogin(payload: LoginPayload) {
       password: payload.password,
     });
 
-    console.log("📨 Ответ от sign_in:", res.data);
+    console.log("Ответ от sign_in:", res.data);
 
     if (res.data.accessToken) {
       // Сохраняем токен в localStorage
@@ -33,7 +31,7 @@ export async function doLogin(payload: LoginPayload) {
       // Декодируем токен чтобы получить роль
       try {
         const payload = JSON.parse(atob(res.data.accessToken.split('.')[1]));
-        console.log("🎯 Декодированный токен:", payload);
+        console.log("Декодированный токен:", payload);
         
         // Ищем роль
         let role = 'ROLE_CONSIGNER';
