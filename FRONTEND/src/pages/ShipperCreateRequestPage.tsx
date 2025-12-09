@@ -281,68 +281,8 @@ const ShipperCreateRequestPage: React.FC = () => {
                         maxPrice: 1000,
                     }}
                 >
-                    {/* Адреса */}
-                    <Card title="Адреса" style={{ marginBottom: 24 }}>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item
-                                    label="Адрес отправления"
-                                    name="fromAddress"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: "Укажите адрес",
-                                        },
-                                    ]}
-                                    getValueFromEvent={(v) => v}
-                                >
-                                    <HybridAddressInput
-                                        placeholder="Введите адрес или выберите на карте"
-                                        fetchSuggestions={
-                                            fetchAddressSuggestions
-                                        }
-                                        onChange={(v) =>
-                                            form.setFieldValue("fromAddress", v)
-                                        }
-                                        value={form.getFieldValue(
-                                            "fromAddress"
-                                        )}
-                                    />
-                                </Form.Item>
-                            </Col>
-
-                            <Col span={12}>
-                                <Form.Item
-                                    label="Адрес доставки"
-                                    name="toAddress"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: "Укажите адрес",
-                                        },
-                                    ]}
-                                    getValueFromEvent={(v) => v}
-                                >
-                                    <HybridAddressInput
-                                        placeholder="Введите адрес или выберите на карте"
-                                        fetchSuggestions={
-                                            fetchAddressSuggestions
-                                        }
-                                        onChange={(v) =>
-                                            form.setFieldValue("toAddress", v)
-                                        }
-                                        value={form.getFieldValue("toAddress")}
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Card>
-
-                    {/* Получатель */}
-                    <Card
-                        title="Информация о получателе"
-                        style={{ marginBottom: 24 }}
-                    >
+                    {/* карточка 1 */}
+                    <Card style={{ marginBottom: 24 }}>
                         <Row gutter={16}>
                             <Col span={8}>
                                 <Form.Item
@@ -412,7 +352,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                         </Row>
 
                         <Row gutter={16}>
-                            <Col span={12}>
+                            <Col span={8}>
                                 <Form.Item
                                     name="recipientEmail"
                                     label="Email"
@@ -434,22 +374,16 @@ const ShipperCreateRequestPage: React.FC = () => {
                                     <Input placeholder="email@example.com" />
                                 </Form.Item>
                             </Col>
-                            <Col span={12}>
+                            <Col span={8}>
                                 <Form.Item
                                     name="recipientPhone"
-                                    label="Телефон"
+                                    label="Номер телефона получателя"
                                     rules={[{ validator: validatePhone }]}
                                 >
                                     <Input placeholder="+7XXXXXXXXXX" />
                                 </Form.Item>
                             </Col>
-                        </Row>
-                    </Card>
-
-                    {/* Параметры заявки */}
-                    <Card title="Параметры заявки" style={{ marginBottom: 24 }}>
-                        <Row gutter={16}>
-                            <Col span={12}>
+                            <Col span={8}>
                                 <Form.Item
                                     name="deadline"
                                     label="Дедлайн доставки"
@@ -475,50 +409,64 @@ const ShipperCreateRequestPage: React.FC = () => {
                                     />
                                 </Form.Item>
                             </Col>
-                            <Col span={12}>
+                        </Row>
+
+                        <Row gutter={16}>
+                            <Col span={8}>
                                 <Form.Item
-                                    name="maxPrice"
-                                    label="Вознаграждение ₽"
+                                    label="Адрес отправления"
+                                    name="fromAddress"
                                     rules={[
                                         {
                                             required: true,
-                                            message: "Обязательное поле",
-                                        },
-                                        {
-                                            type: "number",
-                                            min: 0,
-                                            max: 1000000,
-                                            message: "От 0 до 1 000 000 руб",
+                                            message: "Укажите адрес",
                                         },
                                     ]}
+                                    getValueFromEvent={(v) => v}
                                 >
-                                    <InputNumber
-                                        style={{ width: "100%" }}
-                                        min={0}
-                                        max={1000000}
-                                        formatter={(value) =>
-                                            `${value}`.replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                " "
-                                            )
+                                    <HybridAddressInput
+                                        placeholder="Введите адрес или выберите на карте"
+                                        fetchSuggestions={
+                                            fetchAddressSuggestions
                                         }
-                                        parser={(value) => {
-                                            const num =
-                                                parseInt(
-                                                    value!.replace(/\s/g, "")
-                                                ) || 0;
-                                            return Math.max(
-                                                0,
-                                                Math.min(1000000, num)
-                                            ) as 0 | 1000000;
-                                        }}
+                                        onChange={(v) =>
+                                            form.setFieldValue("fromAddress", v)
+                                        }
+                                        value={form.getFieldValue(
+                                            "fromAddress"
+                                        )}
+                                    />
+                                </Form.Item>
+                            </Col>
+
+                            <Col span={8}>
+                                <Form.Item
+                                    label="Адрес доставки"
+                                    name="toAddress"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Укажите адрес",
+                                        },
+                                    ]}
+                                    getValueFromEvent={(v) => v}
+                                >
+                                    <HybridAddressInput
+                                        placeholder="Введите адрес или выберите на карте"
+                                        fetchSuggestions={
+                                            fetchAddressSuggestions
+                                        }
+                                        onChange={(v) =>
+                                            form.setFieldValue("toAddress", v)
+                                        }
+                                        value={form.getFieldValue("toAddress")}
                                     />
                                 </Form.Item>
                             </Col>
                         </Row>
                     </Card>
 
-                    {/* Грузы */}
+                    {/* Карточка 2 */}
                     <Card
                         title="Информация о грузах"
                         style={{ marginBottom: 24 }}
@@ -529,41 +477,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                             size="middle"
                         >
                             <Row gutter={16}>
-                                <Col span={6}>
-                                    <Form.Item label="Длина (см)" required>
-                                        <InputNumber
-                                            value={cargoItem.length}
-                                            onChange={(value) =>
-                                                updateCargoField(
-                                                    "length",
-                                                    value || 0
-                                                )
-                                            }
-                                            min={1}
-                                            max={500}
-                                            style={{ width: "100%" }}
-                                            placeholder="Длина"
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={6}>
-                                    <Form.Item label="Ширина (см)" required>
-                                        <InputNumber
-                                            value={cargoItem.width}
-                                            onChange={(value) =>
-                                                updateCargoField(
-                                                    "width",
-                                                    value || 0
-                                                )
-                                            }
-                                            min={1}
-                                            max={500}
-                                            style={{ width: "100%" }}
-                                            placeholder="Ширина"
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={6}>
+                                {/* <Col span={4}>
                                     <Form.Item label="Высота (см)" required>
                                         <InputNumber
                                             value={cargoItem.height}
@@ -579,55 +493,81 @@ const ShipperCreateRequestPage: React.FC = () => {
                                             placeholder="Высота"
                                         />
                                     </Form.Item>
-                                </Col>
-                                <Col span={6}>
-                                    <Form.Item label="Вес (кг)" required>
-                                        <InputNumber
-                                            value={cargoItem.weight}
-                                            onChange={(value) =>
-                                                updateCargoField(
-                                                    "weight",
-                                                    value || 0
-                                                )
-                                            }
-                                            min={1}
-                                            max={1000}
-                                            style={{ width: "100%" }}
-                                            placeholder="Вес"
-                                        />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                                </Col> */}
 
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item label="Тип груза">
-                                        <Select
-                                            value={cargoItem.cargoType}
-                                            onChange={(value) =>
-                                                updateCargoField(
-                                                    "cargoType",
-                                                    value
-                                                )
-                                            }
-                                            style={{ width: "100%" }}
-                                        >
-                                            {cargoTypes.map((type) => (
-                                                <Option
-                                                    key={type.id}
-                                                    value={type.id}
-                                                >
-                                                    {type.type}{" "}
-                                                    {type.fragile
-                                                        ? "(Хрупкий)"
-                                                        : ""}
-                                                </Option>
-                                            ))}
-                                        </Select>
+                                <Col span={8}>
+                                    <Form.Item
+                                        label="Габариты (Д × Ш × В), см"
+                                        required
+                                    >
+                                        <Row gutter={12}>
+                                            <Col span={8}>
+                                                <InputNumber
+                                                    value={cargoItem.length}
+                                                    onChange={(value) =>
+                                                        updateCargoField(
+                                                            "length",
+                                                            value || 0
+                                                        )
+                                                    }
+                                                    min={1}
+                                                    max={500}
+                                                    placeholder="Длина"
+                                                    style={{ width: "100%" }}
+                                                />
+                                            </Col>
+                                            <Col span={8}>
+                                                <InputNumber
+                                                    value={cargoItem.width}
+                                                    onChange={(value) =>
+                                                        updateCargoField(
+                                                            "width",
+                                                            value || 0
+                                                        )
+                                                    }
+                                                    min={1}
+                                                    max={500}
+                                                    placeholder="Ширина"
+                                                    style={{ width: "100%" }}
+                                                />
+                                            </Col>
+                                            <Col span={8}>
+                                                <InputNumber
+                                                    value={cargoItem.height}
+                                                    onChange={(value) =>
+                                                        updateCargoField(
+                                                            "height",
+                                                            value || 0
+                                                        )
+                                                    }
+                                                    min={1}
+                                                    max={500}
+                                                    placeholder="Высота"
+                                                    style={{ width: "100%" }}
+                                                />
+                                            </Col>
+                                        </Row>
                                     </Form.Item>
                                 </Col>
-                                <Col span={12}>
-                                    <Form.Item label="Объявленная ценность (руб)">
+
+                                <Col span={8}>
+                                    <Form.Item
+                                        name="maxPrice"
+                                        label="Вознаграждение ₽"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: "Обязательное поле",
+                                            },
+                                            {
+                                                type: "number",
+                                                min: 0,
+                                                max: 1000000,
+                                                message:
+                                                    "От 0 до 1 000 000 руб",
+                                            },
+                                        ]}
+                                    >
                                         <InputNumber
                                             value={cargoItem.worth}
                                             onChange={(value) =>
@@ -656,20 +596,58 @@ const ShipperCreateRequestPage: React.FC = () => {
                                 </Col>
                             </Row>
 
-                            <Form.Item label="Описание груза">
-                                <Input.TextArea
-                                    value={cargoItem.description}
-                                    onChange={(e) =>
-                                        updateCargoField(
-                                            "description",
-                                            e.target.value
-                                        )
+                            <Row gutter={16}>
+                                <Col span={8}>
+                                    <Form.Item label="Вес (кг)" required>
+                                        <InputNumber
+                                            value={cargoItem.weight}
+                                            onChange={(value) =>
+                                                updateCargoField(
+                                                    "weight",
+                                                    value || 0
+                                                )
+                                            }
+                                            min={1}
+                                            max={1000}
+                                            style={{ width: "100%" }}
+                                            placeholder="Вес"
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={8}>
+                                    <Form.Item label="Описание груза">
+                                        <Input.TextArea
+                                            value={cargoItem.description}
+                                            onChange={(e) =>
+                                                updateCargoField(
+                                                    "description",
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="Описание груза"
+                                            maxLength={500}
+                                            rows={3}
+                                            showCount
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Form.Item label="Тип груза">
+                                <Select
+                                    value={cargoItem.cargoType}
+                                    onChange={(value) =>
+                                        updateCargoField("cargoType", value)
                                     }
-                                    placeholder="Описание груза"
-                                    maxLength={500}
-                                    rows={3}
-                                    showCount
-                                />
+                                    style={{ width: "100%" }}
+                                >
+                                    {cargoTypes.map((type) => (
+                                        <Option key={type.id} value={type.id}>
+                                            {type.type}{" "}
+                                            {/* {type.fragile ? "(Хрупкий)" : ""} */}
+                                        </Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
                         </Space>
                     </Card>

@@ -140,9 +140,8 @@ export const cargoRequestsApi = {
     await new Promise(resolve => setTimeout(resolve, 300));
     return {
       cargoTypes: [
-        { id: 1, type: "Обычный", fragile: false },
-        { id: 2, type: "Хрупкий", fragile: true },
-        { id: 3, type: "Осторожно стекло", fragile: true },
+        { id: 0, type: "Обычный", fragile: false },
+        { id: 1, type: "Осторожно стекло", fragile: true },
       ]
     };
   },
