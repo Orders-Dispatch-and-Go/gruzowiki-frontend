@@ -67,11 +67,11 @@ const HybridAddressInput: React.FC<Props> = ({
 
             {mode === "map" && (
                 <div>
-                    <Space style={{ marginBottom: 8 }}>
+                    <Space style={{ marginBottom: 8,  width: "80%"  }}>
                         <Input
                             value={address}
                             readOnly
-                            style={{ width: 300 }}
+                            style={{ width: 200 }}
                         />
 
                         <Button

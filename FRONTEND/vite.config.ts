@@ -23,6 +23,21 @@ export default defineConfig({
         target: 'http://51.250.34.151:8074',
         changeOrigin: true,
         secure: false,
+      },
+      '/cargo_request' : {
+        target: 'http://51.250.34.151:8075',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/cargo' : {
+        target: 'http://51.250.34.151:8075',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/recipients' : {
+        target: 'http://51.250.34.151:8075',
+        changeOrigin: true,
+        secure: false,
       }
     }
   }

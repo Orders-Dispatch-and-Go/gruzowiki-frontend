@@ -27,6 +27,7 @@ export async function doLogin(payload: LoginPayload) {
     if (res.data.accessToken) {
       // Сохраняем токен в localStorage
       localStorage.setItem("token", res.data.accessToken);
+      client.defaults.headers.Authorization = `Bearer ${res.data.accessToken}`;
       
       // Декодируем токен чтобы получить роль
       try {

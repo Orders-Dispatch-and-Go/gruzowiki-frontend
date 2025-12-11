@@ -249,15 +249,6 @@ const onProfileFinish = async (values: UserProfileData) => {
                             onTabChange={onTabChange}
                         />
 
-                        {/* Отображение шагов */}
-                        {/* <Steps
-              current={currentStep}
-              items={steps}
-              style={{ marginBottom: 24 }}
-            /> */}
-
-                        {/* сюда можно будет еще добавтьб отображение шагов steps */}
-
                         <Space
                             direction="vertical"
                             style={{ width: "100%" }}

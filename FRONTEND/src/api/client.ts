@@ -1,67 +1,62 @@
-// src/api/client.ts
 import axios from "axios";
 
-const API_HOST = import.meta.env.VITE_API_HOST ?? "http://51.250.34.151:8074/";
+// const API_HOST = import.meta.env.VITE_API_HOST ?? "http://51.250.34.151:8074/";
+
 const client = axios.create({
-    // baseURL: API_HOST,
-    baseURL: "",
-    // если сервер будет ставить HttpOnly cookie
-    // он будет их ставить???
-    withCredentials: true,
+    baseURL: "/", // for vite-proxy
+    withCredentials: false, // отключаем cookies
     headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
     },
 });
 
-// Добавляем интерсепторы для отладки
 client.interceptors.request.use((request) => {
+    console.log("📤 Отправляем запрос:", {
+        url: request.url,
+        method: request.method,
+        baseURL: request.baseURL,
+        data: request.data, // Добавили это!
+        // fullUrl: request.baseURL + request.url,
+        headers: request.headers
+    });
     const token = localStorage.getItem("token");
 
     if (token) {
         request.headers.Authorization = `Bearer ${token}`;
-        console.log(
-            "Добавляем токен в заголовок:",
-            token.substring(0, 20) + "..."
-        );
+        console.log("Добавляем токен:", token.substring(0, 20) + "...");
     }
-    console.log(
-        "Отправляем запрос:",
-        request.method?.toUpperCase(),
-        request.url
-    );
-    console.log("Данные:", request.data);
-    console.log("Полный URL:", request.url);
+
     return request;
 });
 
 client.interceptors.response.use(
     (response) => {
-        console.log("Получен ответ:", response.status, response.data);
+        console.log("Успешный ответ:", {
+            url: response.config.url,
+            status: response.status,
+            data: response.data
+        });
         return response;
     },
     (error) => {
-        console.log(
-            "Ошибка запроса:",
-            error.response?.status,
-            error.response?.data
-        );
-        console.log("URL ошибки:", error.config?.baseURL + error.config?.url);
-        console.log("Метод:", error.config?.method);
-console.log("Отправленные данные:", error.config?.data);
-        console.log("Заголовки:", error.config?.headers);
-        
-        // Показываем полные детали ошибки
-        if (error.response?.data) {
-            console.log("Детали ошибки от сервера:", JSON.stringify(error.response.data, null, 2));
-        }
+        console.error("Ошибка запроса:", {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response?.status,
+            data: error.response?.data,
+            headers: error.config?.headers
+        });
+        const status = error.response?.status;
+        const url = error.config?.url ?? "";
 
-        // Если 401 - токен невалидный
-        if (error.response?.status === 401) {
-            console.log("Токен невалидный, нужен выход");
+        // 401 только если НЕ login запрос
+        if (status === 401 && !url.includes("/auth/sign_in")) {
+            console.log("401 → токен недействителен");
             localStorage.removeItem("token");
             window.location.href = "/login";
         }
+
         return Promise.reject(error);
     }
 );

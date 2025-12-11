@@ -68,10 +68,18 @@ export interface CargoItem {
   cargoType: number;
   description: string;
   worth: number;
-  cargoRequestId?: number;
+  cargoRequestId?: string;
 }
 
-export interface Recipient {
+export interface CreateCargoItemRequest {
+  cargo: CargoItem[];
+}
+
+export interface CreateCargoItemResponse {
+  ids: number[];
+}
+
+export interface RecipientData {
   firstname: string;
   secondname: string;
   thirdname: string;
@@ -79,7 +87,23 @@ export interface Recipient {
   email: string;
 }
 
-export interface CreateCargoRequest {
+
+
+export interface CreateRecipientResponse {
+  id: number;
+}
+
+export interface Recipient {
+  id: number;
+  firstname: string;
+  secondname: string;
+  thirdname: string;
+  phone: string;
+  email: string;
+  createdAt?: string;
+}
+
+export interface CreateCargoRequestData {
   consignerId: number;
   recipientId: number;
   fromStation: Station;
@@ -88,8 +112,41 @@ export interface CreateCargoRequest {
   maxPrice: string; // decimal(10,2)
 }
 
+export interface CreateCargoRequestResponse {
+  id: string; // uuid
+}
+
 export interface CargoType {
   id: number;
   type: string;
   fragile: boolean;
+}
+
+export interface CargoTypesResponse {
+  cargoTypes: CargoType[];
+}
+
+// for state machine
+// types/cargo.ts
+export interface RequestCreationState {
+    step: 'initial' | 'recipient_created' | 'request_created' | 'complete';
+    recipientId?: number;
+    requestId?: string; // uuid
+    createdCargoIds?: number[];
+    errors: {
+        recipient?: string;
+        request?: string;
+        cargo?: string;
+    };
+    formData: {
+        recipient: RecipientData | null;
+        request: CreateCargoRequestData | null;
+        cargo: CargoItem[] | null;
+    };
+}
+
+export interface PartialRequestData {
+    recipientData: RecipientData;
+    requestData: Omit<CreateCargoRequestData, 'recipientId'>;
+    cargoItems: CargoItem[];
 }

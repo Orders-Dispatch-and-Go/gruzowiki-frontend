@@ -19,12 +19,17 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { cargoRequestsApi } from "../api/cargoRequests";
+import { recipientsApi } from "../api/recipients";
 import type {
     CargoItem,
-    Recipient,
+    RecipientData,
     CargoType,
     AddressSuggestion,
     AddressData,
+    Station,
+    CreateCargoRequestData,
+    RequestCreationState,
+    PartialRequestData,
 } from "../types/cargo";
 import dayjs from "dayjs";
 import AutoInput from "../components/AutoInput";
@@ -74,32 +79,17 @@ const ShipperCreateRequestPage: React.FC = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [cargoTypes, setCargoTypes] = useState<CargoType[]>([]);
-    const [fromLocation, setFromLocation] = useState<MapLocation>({
-        coords: { lat: 55.7558, lon: 37.6173 },
-        address: "",
-    });
-    const [toLocation, setToLocation] = useState<MapLocation>({
-        coords: { lat: 59.9343, lon: 30.3351 },
-        address: "",
-    });
 
-    const handleFromLocationSelect = (location: MapLocation) => {
-        setFromLocation(location);
-        form.setFieldValue("fromAddress", {
-            address: location.address || "",
-            isValid: true,
-            coords: location.coords,
-        });
-    };
-
-    const handleToLocationSelect = (location: MapLocation) => {
-        setToLocation(location);
-        form.setFieldValue("toAddress", {
-            address: location.address || "",
-            isValid: true,
-            coords: location.coords,
-        });
-    };
+    // Состояние создания заявки
+    const [creationState, setCreationState] = useState<RequestCreationState>({
+        step: "initial",
+        errors: {},
+        formData: {
+            recipient: null,
+            request: null,
+            cargo: null,
+        },
+    });
 
     const [cargoItem, setCargoItem] = useState<CargoFormItem>({
         key: 1,
@@ -127,6 +117,37 @@ const ShipperCreateRequestPage: React.FC = () => {
         loadCargoTypes();
     }, []);
 
+    // Загружаем состояние из localStorage при монтировании
+    useEffect(() => {
+        const savedState = localStorage.getItem("pending_request");
+        if (savedState) {
+            try {
+                const parsed = JSON.parse(savedState);
+                setCreationState(parsed);
+
+                // Показываем предупреждение
+                message.warning(
+                    "Обнаружена незавершенная заявка. Продолжить создание?",
+                    5
+                );
+            } catch (e) {
+                console.error("Ошибка загрузки состояния:", e);
+            }
+        }
+    }, []);
+
+    // Сохраняем состояние в localStorage
+    useEffect(() => {
+        if (creationState.step !== "initial") {
+            localStorage.setItem(
+                "pending_request",
+                JSON.stringify(creationState)
+            );
+        } else {
+            localStorage.removeItem("pending_request");
+        }
+    }, [creationState]);
+
     // Валидации
     const validatePhone = (_: any, value: string) => {
         const phoneRegex = /^\+7\d{10}$/;
@@ -135,16 +156,6 @@ const ShipperCreateRequestPage: React.FC = () => {
         }
         if (!phoneRegex.test(value)) {
             return Promise.reject(new Error("Формат: +7XXXXXXXXXX"));
-        }
-        return Promise.resolve();
-    };
-
-    const validateAddress = (_: any, value: string) => {
-        if (!value) {
-            return Promise.reject(new Error("Обязательное поле"));
-        }
-        if (value.length > 80) {
-            return Promise.reject(new Error("Максимум 80 символов"));
         }
         return Promise.resolve();
     };
@@ -169,7 +180,126 @@ const ShipperCreateRequestPage: React.FC = () => {
         return Promise.resolve();
     };
 
-    // Отправка формы
+    // // Отправка формы
+    // const handleSubmit = async (values: any) => {
+    //     if (!user?.id) {
+    //         message.error("Пользователь не авторизован");
+    //         return;
+    //     }
+
+    //     // Проверка суммы габаритов
+    //     if (!validateTotalDimensions(cargoItem)) {
+    //         message.error(
+    //             "Сумма габаритов (Д+Ш+В) не должна превышать 1000 см для каждого груза"
+    //         );
+    //         return;
+    //     }
+
+    //     setLoading(true);
+
+    //     try {
+    //         // 1. Создаем получателя
+    //         const recipientData: RecipientData = {
+    //             firstname: values.recipientFirstName,
+    //             secondname: values.recipientLastName,
+    //             thirdname: values.recipientMiddleName || "",
+    //             phone: values.recipientPhone,
+    //             email: values.recipientEmail,
+    //         };
+
+    //         const recipientResponse = await recipientsApi.createRecipient(
+    //             recipientData
+    //         );
+
+    //         // 2. Получаем и валидируем данные адресов
+    //         const fromAddressData: AddressData = values.fromAddress;
+    //         const toAddressData: AddressData = values.toAddress;
+
+    //         if (!fromAddressData?.isValid || !fromAddressData.coords) {
+    //             throw new Error("Неверный адрес отправления");
+    //         }
+
+    //         if (!toAddressData?.isValid || !toAddressData.coords) {
+    //             throw new Error("Неверный адрес доставки");
+    //         }
+
+    //         // 3. Преобразуем AddressData в Station
+    //         const fromStation: Station = {
+    //             address: fromAddressData.address,
+    //             coords: fromAddressData.coords,
+    //         };
+
+    //         const toStation: Station = {
+    //             address: toAddressData.address,
+    //             coords: toAddressData.coords,
+    //         };
+
+    //         // 4. Создаем заявку
+    //         const requestData: CreateCargoRequestData = {
+    //             consignerId: parseInt(user.id),
+    //             recipientId: recipientResponse.id,
+    //             fromStation: fromStation,
+    //             toStation: toStation,
+    //             deadline: values.deadline.format("YYYY-MM-DDTHH:mm:ssZ"), // dayjs формат
+    //             maxPrice: values.maxPrice.toString(),
+    //         };
+    //         console.log("Request data for API:", requestData);
+
+    //         // // 2. Создаем заявку
+    //         // const requestData = {
+    //         //     consignerId: parseInt(user.id),
+    //         //     recipientId: recipientResponse.id,
+    //         //     fromStation: {
+    //         //         address: values.fromAddress,
+    //         //         coords: {
+    //         //             lat: 55.7558, // Моковые координаты
+    //         //             lon: 37.6173,
+    //         //         },
+    //         //     },
+    //         //     toStation: {
+    //         //         address: values.toAddress,
+    //         //         coords: {
+    //         //             lat: 59.9343, // Моковые координаты
+    //         //             lon: 30.3351,
+    //         //         },
+    //         //     },
+    //         //     deadline: dayjs(values.deadline).format("YYYY-MM-DDTHH:mm:ssZ"),
+    //         //     maxPrice: values.maxPrice.toString(),
+    //         // };
+
+    //         const requestResponse = await cargoRequestsApi.createCargoRequest(
+    //             requestData
+    //         );
+
+    //         // 3. Создаем грузы
+    //         const cargoData: CargoItem[] = [
+    //             {
+    //                 length: cargoItem.length,
+    //                 height: cargoItem.height,
+    //                 width: cargoItem.width,
+    //                 weight: cargoItem.weight,
+    //                 cargoType: cargoItem.cargoType,
+    //                 description: cargoItem.description || "",
+    //                 worth: cargoItem.worth,
+    //                 cargoRequestId: requestResponse.id,
+    //             },
+    //         ];
+
+    //         await cargoRequestsApi.createCargo(cargoData);
+
+    //         message.success("Заявка успешно создана!");
+
+    //         // Редирект на главную страницу
+    //         navigate("/shipper/home");
+    //     } catch (error: any) {
+    //         console.error("Error creating request:", error);
+    //         message.error("Ошибка при создании заявки");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+    // Основная функция создания
     const handleSubmit = async (values: any) => {
         if (!user?.id) {
             message.error("Пользователь не авторизован");
@@ -187,71 +317,269 @@ const ShipperCreateRequestPage: React.FC = () => {
         setLoading(true);
 
         try {
-            // 1. Создаем получателя
-            const recipientData: Recipient = {
-                firstname: values.recipientFirstName,
-                secondname: values.recipientLastName,
-                thirdname: values.recipientMiddleName || "",
-                phone: values.recipientPhone,
-                email: values.recipientEmail,
+            // Собираем все данные
+            const partialData: PartialRequestData = {
+                recipientData: {
+                    firstname: values.recipientFirstName,
+                    secondname: values.recipientLastName,
+                    thirdname: values.recipientMiddleName || "",
+                    phone: values.recipientPhone,
+                    email: values.recipientEmail,
+                },
+                requestData: {
+                    consignerId: parseInt(user.id),
+                    fromStation: await getStationFromAddress(
+                        values.fromAddress
+                    ),
+                    toStation: await getStationFromAddress(values.toAddress),
+                    deadline: values.deadline.format("YYYY-MM-DDTHH:mm:ssZ"),
+                    maxPrice: values.maxPrice.toString(),
+                },
+                cargoItems: [
+                    {
+                        length: cargoItem.length,
+                        height: cargoItem.height,
+                        width: cargoItem.width,
+                        weight: cargoItem.weight,
+                        cargoType: cargoItem.cargoType,
+                        description: cargoItem.description || "",
+                        worth: cargoItem.worth,
+                        cargoRequestId: "", // заполним позже
+                    },
+                ],
             };
 
-            const recipientResponse = await cargoRequestsApi.createRecipient(
-                recipientData
-            );
-
-            // 2. Создаем заявку
-            const requestData = {
-                consignerId: parseInt(user.id),
-                recipientId: recipientResponse.id,
-                fromStation: {
-                    address: values.fromAddress,
-                    coords: {
-                        lat: 55.7558, // Моковые координаты
-                        lon: 37.6173,
-                    },
+            // Сохраняем данные в state
+            setCreationState((prev) => ({
+                ...prev,
+                formData: {
+                    recipient: partialData.recipientData,
+                    request: { ...partialData.requestData, recipientId: 0 }, // временно
+                    cargo: partialData.cargoItems,
                 },
-                toStation: {
-                    address: values.toAddress,
-                    coords: {
-                        lat: 59.9343, // Моковые координаты
-                        lon: 30.3351,
-                    },
+            }));
+
+            // Выполняем создание с учетом текущего шага
+            // await executeCreationFlow(partialData);
+            await executeCreationFlow(partialData, {
+                ...creationState,
+                formData: {
+                    recipient: partialData.recipientData,
+                    request: { ...partialData.requestData, recipientId: 0 },
+                    cargo: partialData.cargoItems,
                 },
-                deadline: dayjs(values.deadline).format("YYYY-MM-DDTHH:mm:ssZ"),
-                maxPrice: values.maxPrice.toString(),
-            };
-
-            const requestResponse = await cargoRequestsApi.createCargoRequest(
-                requestData
-            );
-
-            // 3. Создаем грузы
-            const cargoData: CargoItem[] = [
-                {
-                    length: cargoItem.length,
-                    height: cargoItem.height,
-                    width: cargoItem.width,
-                    weight: cargoItem.weight,
-                    cargoType: cargoItem.cargoType,
-                    description: cargoItem.description || "",
-                    worth: cargoItem.worth,
-                    cargoRequestId: requestResponse.id,
-                },
-            ];
-
-            await cargoRequestsApi.createCargo(cargoData);
-
-            message.success("Заявка успешно создана!");
-
-            // Редирект на главную страницу
-            navigate("/shipper/home");
+            });
         } catch (error: any) {
             console.error("Error creating request:", error);
-            message.error("Ошибка при создании заявки");
+            message.error(error.message || "Ошибка при создании заявки");
         } finally {
             setLoading(false);
         }
+    };
+
+    const executeCreationFlow = async (
+        data: PartialRequestData,
+        state: RequestCreationState
+    ) => {
+        const { recipientData, requestData, cargoItems } = data;
+
+        try {
+            // Шаг 1: Создание получателя (если еще не создан)
+            if (
+                creationState.step === "initial" ||
+                !creationState.recipientId
+            ) {
+                message.loading("Создание получателя...", 0);
+
+                try {
+                    const recipientResponse =
+                        await recipientsApi.createRecipient(recipientData);
+
+                    // setCreationState((prev) => ({
+                    //     ...prev,
+                    //     step: "recipient_created",
+                    //     recipientId: recipientResponse.id,
+                    //     errors: { ...prev.errors, recipient: undefined },
+                    // }));
+                    const newStateAfterRecipient = {
+                        ...state,
+                        step: "recipient_created" as const,
+                        recipientId: recipientResponse.id,
+                        errors: { ...state.errors, recipient: undefined },
+                    };
+
+                    setCreationState(newStateAfterRecipient);
+                    state = newStateAfterRecipient;
+
+                    message.destroy();
+                    message.success("Получатель создан");
+                } catch (error: any) {
+                    setCreationState((prev) => ({
+                        ...prev,
+                        errors: { ...prev.errors, recipient: error.message },
+                    }));
+                    throw new Error(
+                        `Ошибка создания получателя: ${error.message}`
+                    );
+                }
+            }
+
+            // Шаг 2: Создание заявки (если еще не создана)
+            if (state.step === "recipient_created" || !state.requestId) {
+                message.loading("Создание заявки...", 0);
+
+                try {
+                    // const completeRequestData: CreateCargoRequestData = {
+                    //     ...requestData,
+                    //     recipientId: creationState.recipientId!,
+                    // };
+                    const completeRequestData: CreateCargoRequestData = {
+                        consignerId: requestData.consignerId,
+                        recipientId: state.recipientId!,
+
+                        fromStation: requestData.fromStation,
+                        toStation: requestData.toStation,
+                        deadline: requestData.deadline,
+                        maxPrice: requestData.maxPrice,
+                    };
+
+                    console.log(
+                        "Sending request with recipientId:",
+                        creationState.recipientId
+                    );
+                    console.log("Full request data:", completeRequestData);
+
+                    const requestResponse =
+                        await cargoRequestsApi.createCargoRequest(
+                            completeRequestData
+                        );
+
+                    const newStateAfterRequest = {
+                        ...state,
+                        step: "request_created" as const,
+                        requestId: requestResponse.id,
+                        errors: { ...state.errors, request: undefined },
+                    };
+
+                    setCreationState(newStateAfterRequest);
+                    state = newStateAfterRequest;
+
+                    message.destroy();
+                    message.success("Заявка создана");
+                } catch (error: any) {
+                    setCreationState((prev) => ({
+                        ...prev,
+                        errors: { ...prev.errors, request: error.message },
+                    }));
+                    throw new Error(`Ошибка создания заявки: ${error.message}`);
+                }
+            }
+
+            // Шаг 3: Создание груза (если еще не создан)
+            if (state.step === "request_created") {
+                message.loading("Создание груза...", 0);
+
+                try {
+                    const cargoData = cargoItems.map((item) => ({
+                        ...item,
+                        cargoRequestId: state.requestId!,
+                    }));
+
+                    const cargoResponse = await cargoRequestsApi.createCargo(
+                        cargoData
+                    );
+
+                    const newStateAfterCargo = {
+                        ...state,
+                        step: "complete" as const,
+                        createdCargoIds: cargoResponse.ids,
+                        errors: { ...state.errors, cargo: undefined },
+                    };
+
+                    setCreationState(newStateAfterCargo);
+
+                    message.destroy();
+                    message.success("Груз создан");
+
+                    // Очищаем состояние
+                    localStorage.removeItem("pending_request");
+
+                    // Редирект
+                    setTimeout(() => navigate("/shipper/home"), 1000);
+                } catch (error: any) {
+                    setCreationState((prev) => ({
+                        ...prev,
+                        errors: { ...prev.errors, cargo: error.message },
+                    }));
+                    throw new Error(`Ошибка создания груза: ${error.message}`);
+                }
+            }
+        } finally {
+            message.destroy();
+        }
+    };
+
+    // Функция для продолжения создания
+    const continueCreation = async () => {
+        if (
+            !creationState.formData.recipient ||
+            !creationState.formData.request
+        ) {
+            message.error("Нет данных для продолжения");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const data: PartialRequestData = {
+                recipientData: creationState.formData.recipient,
+                requestData: {
+                    consignerId: creationState.formData.request.consignerId,
+                    fromStation: creationState.formData.request.fromStation,
+                    toStation: creationState.formData.request.toStation,
+                    deadline: creationState.formData.request.deadline,
+                    maxPrice: creationState.formData.request.maxPrice,
+                },
+                cargoItems: creationState.formData.cargo || [],
+            };
+
+            // await executeCreationFlow(data);
+            await executeCreationFlow(data, creationState);
+        } catch (error: any) {
+            message.error(error.message || "Ошибка продолжения");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Функция для сброса состояния
+    const resetCreation = () => {
+        setCreationState({
+            step: "initial",
+            errors: {},
+            formData: {
+                recipient: null,
+                request: null,
+                cargo: null,
+            },
+        });
+        localStorage.removeItem("pending_request");
+        form.resetFields();
+        message.info("Создание заявки сброшено");
+    };
+
+    // Вспомогательная функция
+    const getStationFromAddress = async (
+        addressData: AddressData
+    ): Promise<Station> => {
+        if (!addressData?.isValid || !addressData.coords) {
+            throw new Error("Неверный адрес");
+        }
+
+        return {
+            address: addressData.address,
+            coords: addressData.coords,
+        };
     };
 
     if (!user || user.role !== "ROLE_CONSIGNER") {
@@ -273,6 +601,64 @@ const ShipperCreateRequestPage: React.FC = () => {
                 style={{ padding: "24px", maxWidth: 1200, margin: "0 auto" }}
             >
                 <Title level={2}>Создание заявки на перевозку</Title>
+                {creationState.step !== "initial" && (
+                    <Alert
+                        message={`Прогресс создания: ${getStepText(
+                            creationState.step
+                        )}`}
+                        description={
+                            <div>
+                                {creationState.recipientId && (
+                                    <div>
+                                        ✅ Получатель ID:{" "}
+                                        {creationState.recipientId}
+                                    </div>
+                                )}
+                                {creationState.requestId && (
+                                    <div>
+                                        ✅ Заявка ID: {creationState.requestId}
+                                    </div>
+                                )}
+                                {creationState.errors.recipient && (
+                                    <div style={{ color: "red" }}>
+                                        ❌ Ошибка получателя:{" "}
+                                        {creationState.errors.recipient}
+                                    </div>
+                                )}
+                                {creationState.errors.request && (
+                                    <div style={{ color: "red" }}>
+                                        ❌ Ошибка заявки:{" "}
+                                        {creationState.errors.request}
+                                    </div>
+                                )}
+                                {creationState.errors.cargo && (
+                                    <div style={{ color: "red" }}>
+                                        ❌ Ошибка груза:{" "}
+                                        {creationState.errors.cargo}
+                                    </div>
+                                )}
+                                <Space style={{ marginTop: 10 }}>
+                                    <Button
+                                        onClick={continueCreation}
+                                        size="small"
+                                    >
+                                        Продолжить создание
+                                    </Button>
+                                    <Button
+                                        onClick={resetCreation}
+                                        size="small"
+                                        danger
+                                    >
+                                        Начать заново
+                                    </Button>
+                                </Space>
+                            </div>
+                        }
+                        type="info"
+                        style={{ marginBottom: 24 }}
+                    />
+                )}
+
                 <Form
                     form={form}
                     layout="vertical"
@@ -676,3 +1062,19 @@ const ShipperCreateRequestPage: React.FC = () => {
 };
 
 export default ShipperCreateRequestPage;
+
+// Вспомогательная функция
+const getStepText = (step: RequestCreationState["step"]): string => {
+    switch (step) {
+        case "initial":
+            return "Начало";
+        case "recipient_created":
+            return "Получатель создан";
+        case "request_created":
+            return "Заявка создана";
+        case "complete":
+            return "Завершено";
+        default:
+            return "Неизвестно";
+    }
+};
