@@ -15,6 +15,7 @@ import ShipperMainPage from "./pages/ShipperMainPage";
 import MainLayout from "./layout/MainLayout";
 import ShipperProfilePage from "./pages/ShipperProfilePage";
 import ShipperCreateRequestPage from "./pages/ShipperCreateRequestPage";
+import RequestCreatedPage from "./pages/ShipperRequestCreatedPage";
 import ConsignerPlaceholderPage from "./pages/ConsignerPlaceholderPage";
 import 'leaflet/dist/leaflet.css';
 
@@ -35,6 +36,7 @@ export default function App(): React.JSX.Element {
                     <Route path="/register" element={<RegisterPage />} />
                 </Route>
 
+                
                 {/* Маршруты для грузоотправителя */}
                 <Route
                     path="/shipper"
@@ -47,6 +49,8 @@ export default function App(): React.JSX.Element {
                     <Route path="home" element={<ShipperMainPage />} />
                     <Route path="profile" element={<ShipperProfilePage />} />
                     <Route path="create-request" element={<ShipperCreateRequestPage />} />
+                    <Route path="request/success/:id" element={<RequestCreatedPage />} />
+
                     {/* Здесь будут другие маршруты грузоотправителя */}
                 </Route>
 

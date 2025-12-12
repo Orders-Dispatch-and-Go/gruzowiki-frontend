@@ -478,25 +478,28 @@ const ShipperCreateRequestPage: React.FC = () => {
             // Шаг 3: Создание груза (если еще не создан)
             if (state.step === "request_created") {
                 message.loading("Создание груза...", 0);
+                // console.log("Финальная maxPrice, отправка на сервер:", partialData.requestData.maxPrice);
+
 
                 try {
                     const cargoData = cargoItems.map((item) => ({
                         ...item,
                         cargoRequestId: state.requestId!,
                     }));
+        console.log("Данные груза, отправка на сервер:", cargoData);
 
                     const cargoResponse = await cargoRequestsApi.createCargo(
                         cargoData
                     );
 
-                    const newStateAfterCargo = {
-                        ...state,
-                        step: "complete" as const,
-                        createdCargoIds: cargoResponse.ids,
-                        errors: { ...state.errors, cargo: undefined },
-                    };
+                    // const newStateAfterCargo = {
+                    //     ...state,
+                    //     step: "complete" as const,
+                    //     createdCargoIds: cargoResponse.ids,
+                    //     errors: { ...state.errors, cargo: undefined },
+                    // };
 
-                    setCreationState(newStateAfterCargo);
+                    // setCreationState(newStateAfterCargo);
 
                     message.destroy();
                     message.success("Груз создан");
@@ -504,8 +507,10 @@ const ShipperCreateRequestPage: React.FC = () => {
                     // Очищаем состояние
                     localStorage.removeItem("pending_request");
 
+                    navigate(`/shipper/request/success/${state.requestId}`);
+
                     // Редирект
-                    setTimeout(() => navigate("/shipper/home"), 1000);
+                    // setTimeout(() => navigate("/shipper/home"), 1000);
                 } catch (error: any) {
                     setCreationState((prev) => ({
                         ...prev,

@@ -30,7 +30,7 @@ const mockCargoRequests: CargoRequest[] = [
             address: "Санкт-Петербург, Невский проспект, д. 1",
             coords: { lat: 59.9343, lon: 30.3351 },
         },
-        maxPrice: "5000.00",
+        price: "5000.00",
         status: "создана",
     },
     {
@@ -49,7 +49,7 @@ const mockCargoRequests: CargoRequest[] = [
             address: "Казань, ул. Баумана, д. 1",
             coords: { lat: 55.7905, lon: 49.1213 },
         },
-        maxPrice: "3000.00",
+        price: "3000.00",
         status: "одобрена водителем",
     },
     {
@@ -68,14 +68,138 @@ const mockCargoRequests: CargoRequest[] = [
             address: "Нижний Новгород, ул. Большая Покровская, д. 1",
             coords: { lat: 56.3269, lon: 44.0056 },
         },
-        maxPrice: "7500.00",
+        price: "7500.00",
         status: "доставка началась",
     },
 ];
 
-const USE_MOCK_DATA = true; // Переключить на false когда бек будет готов
+const USE_MOCK_DATA = false; // Переключить на false когда бек будет готов
 
 export const cargoRequestsApi = {
+   /**
+     * Поиск заявок с фильтрами и пагинацией
+     * @param filter - объект фильтра (если поле null - оно не используется)
+     * @param pageNumber - номер страницы (начинается с 1)
+     * @param pageSize - размер страницы
+     */
+    searchCargoRequests: async (
+        filter: CargoRequestFilter = {},
+        pageNumber: number = 1,
+        pageSize: number = 10
+    ): Promise<CargoRequestResponse> => {
+        // Заглушка для разработки если USE_MOCK_DATA = true
+        if (USE_MOCK_DATA) {
+            console.log("🔍 MOCK: Поиск заявок с фильтрами:", {
+                filter,
+                pageNumber,
+                pageSize
+            });
+
+            // Имитируем поиск по mock данным
+            let filteredRequests = [...mockCargoRequests];
+
+            // Применяем фильтры (игнорируем null и undefined значения)
+            if (filter.id !== undefined && filter.id !== null) {
+                filteredRequests = filteredRequests.filter(req => 
+                    req.id.includes(filter.id!)
+                );
+            }
+
+            if (filter.consignerId !== undefined && filter.consignerId !== null) {
+                filteredRequests = filteredRequests.filter(req => 
+                    req.consignerId === filter.consignerId
+                );
+            }
+
+            if (filter.recipientId !== undefined && filter.recipientId !== null) {
+                filteredRequests = filteredRequests.filter(req => 
+                    req.recipientId === filter.recipientId
+                );
+            }
+
+            if (filter.status !== undefined && filter.status !== null) {
+                filteredRequests = filteredRequests.filter(req => 
+                    req.status === filter.status
+                );
+            }
+
+            if (filter.createdFrom !== undefined && filter.createdFrom !== null) {
+                const fromDate = new Date(filter.createdFrom).getTime() / 1000;
+                filteredRequests = filteredRequests.filter(req => 
+                    req.createdAt >= fromDate
+                );
+            }
+
+            if (filter.createdTo !== undefined && filter.createdTo !== null) {
+                const toDate = new Date(filter.createdTo).getTime() / 1000;
+                filteredRequests = filteredRequests.filter(req => 
+                    req.createdAt <= toDate
+                );
+            }
+
+            // Пагинация
+            const startIndex = (pageNumber - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
+
+            return {
+                cargoRequests: paginatedRequests
+            };
+        }
+
+        // Реальный запрос к бекенду
+        try {
+            // Очищаем фильтр от null значений (но оставляем undefined)
+            const cleanFilter: Record<string, any> = {};
+            
+            Object.entries(filter).forEach(([key, value]) => {
+                if (value !== null) {
+                    cleanFilter[key] = value;
+                }
+            });
+
+            console.log("🔍 Отправка запроса поиска:", {
+                filter: cleanFilter,
+                pageNumber,
+                pageSize
+            });
+
+            const response = await client.post<CargoRequestResponse>(
+                `/cargo_request/search?page_number=${pageNumber}&page_size=${pageSize}`,
+                cleanFilter
+            );
+
+            console.log("✅ Поиск выполнен успешно. Найдено:", 
+                response.data.cargoRequests?.length || 0, "заявок");
+            
+            return response.data;
+            
+        } catch (error: any) {
+            console.error("❌ Ошибка поиска заявок:", error);
+
+            if (error.response) {
+                console.error("Статус ошибки:", error.response.status);
+                console.error("Данные ошибки:", error.response.data);
+
+                // Создаем красивую ошибку
+                const apiError = new Error(
+                    `Ошибка поиска заявок: ${error.response.status} - ${
+                        error.response.data?.message || JSON.stringify(error.response.data)
+                    }`
+                );
+                
+                (apiError as any).status = error.response.status;
+                (apiError as any).data = error.response.data;
+                
+                throw apiError;
+            }
+
+            throw new Error(`Ошибка соединения: ${error.message}`);
+        }
+    },
+   
+   
+   
     // Универсальный метод для получения заявок с пагинацией и фильтрацией
     getCargoRequests: async (
         filter: CargoRequestFilter = {},
@@ -118,11 +242,7 @@ export const cargoRequestsApi = {
         }
 
         // Реальный запрос когда бек готов
-        const response = await client.post<CargoRequestResponse>(
-            `/cargo_request?page_number=${pageNumber}&page_size=${pageSize}`,
-            filter
-        );
-        return response.data;
+        return await cargoRequestsApi.searchCargoRequests(filter, pageNumber, pageSize);
     },
 
     // Получение активных заявок (без пагинации для главной страницы)
@@ -140,14 +260,16 @@ export const cargoRequestsApi = {
 
         const filter: CargoRequestFilter = {
             consignerId: consignerId,
-            status: activeStatuses.join(","),
+            // status: activeStatuses.join(","),
+            // status: null,
         };
 
         // Для главной страницы берем первые 50 заявок
         return await cargoRequestsApi.getCargoRequests(filter, 1, 50);
     },
 
-    getCargoTypes: async (): Promise<CargoTypesResponse> => {
+    getCargoTypes: async ():
+     Promise<CargoTypesResponse> => {
         // if (USE_MOCK_DATA) {
         //     console.log("MOCK Getting cargo types");
         //     await new Promise((resolve) => setTimeout(resolve, 300));
@@ -344,11 +466,6 @@ export const cargoRequestsApi = {
         }
     },
 
-    // createCargo: async (cargoItems: any[]) => {
-    //     console.log("📦 Creating cargo items:", cargoItems);
-    //     await new Promise((resolve) => setTimeout(resolve, 800));
-    //     return { ids: cargoItems.map((_, index) => index + 1) };
-    // },
 
     createCargo: async (
         cargoItems: CargoItem[]

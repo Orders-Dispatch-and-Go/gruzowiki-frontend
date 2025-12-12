@@ -158,13 +158,13 @@ const ShipperMainPage: React.FC = () => {
       ),
     },
     {
-      title: 'Макс. цена',
-      dataIndex: 'maxPrice',
-      key: 'maxPrice',
+      title: 'Предложенное вознаграждение ₽',
+      dataIndex: 'price',
+      key: 'price',
       width: 120,
-      render: (maxPrice: string, record: CargoRequest) => (
+      render: (price: string, record: CargoRequest) => (
         <Text strong>
-          {record.actualTripId ? "Цена согласована" : `${maxPrice} руб`}
+          {record.actualTripId ? "Цена согласована" : `${price} руб`}
         </Text>
       ),
     },

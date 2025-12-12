@@ -37,7 +37,7 @@ export interface CargoRequest {
   actualTripId: string | null;
   fromStation: Station;
   toStation: Station;
-  maxPrice: string;
+  price: string;
   status: string;
   recipientName?: string;
 }
@@ -127,7 +127,6 @@ export interface CargoTypesResponse {
 }
 
 // for state machine
-// types/cargo.ts
 export interface RequestCreationState {
     step: 'initial' | 'recipient_created' | 'request_created' | 'complete';
     recipientId?: number;
