@@ -167,70 +167,68 @@ export default function RegisterPage(): React.JSX.Element {
         // или: return "ROLE_CONSIGNER"; // значение по умолчанию
     };
 
-
     // Обработчик второй формы (профиль)
-const onProfileFinish = async (values: UserProfileData) => {
-    if (!values.agree) {
-        setServerError(
-            "Вы должны согласиться на обработку персональных данных"
-        );
-        return;
-    }
-
-    setServerError(null);
-    setLoading(true);
-
-    try {
-        // Получаем данные из sessionStorage
-        const registerEmail = sessionStorage.getItem("registration_email");
-        const registerPassword = sessionStorage.getItem(
-            "registration_password"
-        );
-        const registerRole = sessionStorage.getItem("registration_role");
-        console.log("role = " + registerRole);
-
-        // Проверяем что все обязательные поля есть
-        if (!registerEmail || !registerPassword || !registerRole) {
-            setServerError("Данные регистрации потеряны. Начните заново.");
+    const onProfileFinish = async (values: UserProfileData) => {
+        if (!values.agree) {
+            setServerError(
+                "Вы должны согласиться на обработку персональных данных"
+            );
             return;
         }
 
-        // Формируем данные согласно API
-        const fullData = {
-            email: registerEmail,
-            password: registerPassword,
-            firstName: values.firstName,
-            secondName: values.lastName,
-            thirdName: values.middleName || "",
-            phone: values.phone || "",
-            role: registerRole as "ROLE_CONSIGNER" | "ROLE_CARRIER",
-            birthdate: values.birthDate
-                ? values.birthDate.format("YYYY-MM-DD")
-                : "",
-        };
-        console.log("Отправляем данные регистрации:", fullData);
+        setServerError(null);
+        setLoading(true);
 
-        const res = await doRegister(fullData);
-        if (!res.ok) {
-            setServerError(res.message ?? "Ошибка регистрации");
-            return;
-        }
+        try {
+            // Получаем данные из sessionStorage
+            const registerEmail = sessionStorage.getItem("registration_email");
+            const registerPassword = sessionStorage.getItem(
+                "registration_password"
+            );
+            const registerRole = sessionStorage.getItem("registration_role");
+            console.log("role = " + registerRole);
 
-        console.log("Регистрация успешна, логинимся...");
+            // Проверяем что все обязательные поля есть
+            if (!registerEmail || !registerPassword || !registerRole) {
+                setServerError("Данные регистрации потеряны. Начните заново.");
+                return;
+            }
 
-        // Редирект на логин
+            // Формируем данные согласно API
+            const fullData = {
+                email: registerEmail,
+                password: registerPassword,
+                firstName: values.firstName,
+                secondName: values.lastName,
+                thirdName: values.middleName || "",
+                phone: values.phone || "",
+                role: registerRole as "ROLE_CONSIGNER" | "ROLE_CARRIER",
+                birthdate: values.birthDate
+                    ? values.birthDate.format("YYYY-MM-DD")
+                    : "",
+            };
+            console.log("Отправляем данные регистрации:", fullData);
+
+            const res = await doRegister(fullData);
+            if (!res.ok) {
+                setServerError(res.message ?? "Ошибка регистрации");
+                return;
+            }
+
+            console.log("Регистрация успешна, логинимся...");
+
+            // Редирект на логин
             let redirectTo = "/login";
-            
+
             console.log("Редирект на:", redirectTo);
             navigate(redirectTo, { replace: true });
-
-    } catch (error) {
-        console.error("Ошибка в onProfileFinish:", error);
-        setServerError("Сервер недоступен");
-    } finally {
-        setLoading(false);
-    }
-};
+        } catch (error) {
+            console.error("Ошибка в onProfileFinish:", error);
+            setServerError("Сервер недоступен");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Возврат к предыдущему шагу
     const handleBack = () => {
@@ -240,7 +238,9 @@ const onProfileFinish = async (values: UserProfileData) => {
     };
 
     return (
-        <Layout style={{ backgroundColor: "#f5f5f5" }}>
+        <Layout
+            style={{ backgroundColor: "#212D3B" }}
+        >
             <Content>
                 <Flex justify="center" align="center">
                     <AuthCard>
@@ -279,7 +279,7 @@ const onProfileFinish = async (values: UserProfileData) => {
                                     initialValues={{ role: "ROLE_CONSIGNER" }}
                                 >
                                     <Form.Item
-                                        label="Email"
+                                        // label="Email"
                                         name="email"
                                         rules={[
                                             {
@@ -305,16 +305,25 @@ const onProfileFinish = async (values: UserProfileData) => {
                                         />
                                     </Form.Item>
 
-                                    <Form.Item label="Роль" name="role">
+                                    <Form.Item name="role">
                                         <Space
                                             direction="vertical"
-                                            style={{ width: "100%" }}
+                                            style={{
+                                                width: "100%",
+                                                color: "white",
+                                            }}
                                         >
                                             <Radio.Group>
-                                                <Radio value="ROLE_CONSIGNER">
+                                                <Radio
+                                                    value="ROLE_CONSIGNER"
+                                                    style={{ color: "white" }}
+                                                >
                                                     Грузоотправитель
                                                 </Radio>
-                                                <Radio value="ROLE_CARRIER">
+                                                <Radio
+                                                    value="ROLE_CARRIER"
+                                                    style={{ color: "white" }}
+                                                >
                                                     Грузоперевозчик
                                                 </Radio>
                                             </Radio.Group>
@@ -329,7 +338,6 @@ const onProfileFinish = async (values: UserProfileData) => {
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="Пароль"
                                         name="password"
                                         rules={[
                                             {
@@ -354,7 +362,6 @@ const onProfileFinish = async (values: UserProfileData) => {
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="Подтвердите пароль"
                                         name="confirmPassword"
                                         dependencies={["password"]}
                                         rules={[
@@ -481,7 +488,6 @@ const onProfileFinish = async (values: UserProfileData) => {
                                     requiredMark={false}
                                 >
                                     <Form.Item
-                                        label="Фамилия"
                                         name="lastName"
                                         rules={[
                                             {
@@ -497,7 +503,6 @@ const onProfileFinish = async (values: UserProfileData) => {
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="Имя"
                                         name="firstName"
                                         rules={[
                                             {
@@ -509,17 +514,14 @@ const onProfileFinish = async (values: UserProfileData) => {
                                         <Input placeholder="Имя" size="large" />
                                     </Form.Item>
 
-                                    <Form.Item
-                                        label="Отчество"
-                                        name="middleName"
-                                    >
+                                    <Form.Item name="middleName">
                                         <Input
                                             placeholder="Отчество (необязательно)"
                                             size="large"
                                         />
                                     </Form.Item>
 
-                                    <Form.Item label="Телефон" name="phone">
+                                    <Form.Item name="phone">
                                         <Input
                                             placeholder="+7XXXXXXXXXX"
                                             size="large"
@@ -527,7 +529,6 @@ const onProfileFinish = async (values: UserProfileData) => {
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="Дата рождения"
                                         name="birthDate"
                                         rules={[
                                             {
@@ -559,35 +560,33 @@ const onProfileFinish = async (values: UserProfileData) => {
                                             },
                                         ]}
                                     >
-                                        <Checkbox>
+                                        <Checkbox style={{ color: "#fff" }}>
                                             Согласен на обработку персональных
                                             данных
                                         </Checkbox>
                                     </Form.Item>
 
                                     <Form.Item>
-                                        <Space
-                                            style={{ width: "100%" }}
-                                            direction="vertical"
-                                        >
+                                        <Flex gap={16}>
                                             <Button
                                                 type="primary"
                                                 htmlType="submit"
-                                                block
                                                 loading={loading}
                                                 size="large"
+                                                style={{ flex: 1 }}
                                             >
                                                 Завершить регистрацию
                                             </Button>
+
                                             <Button
                                                 type="default"
                                                 onClick={handleBack}
-                                                block
                                                 size="large"
+                                                style={{ flex: 1 }}
                                             >
                                                 Назад
                                             </Button>
-                                        </Space>
+                                        </Flex>
                                     </Form.Item>
                                 </Form>
                             )}

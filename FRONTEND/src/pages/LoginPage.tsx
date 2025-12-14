@@ -64,21 +64,8 @@ export default function LoginPage(): React.JSX.Element {
             } else {
                 if (res.data?.token) {
                     const { user, token } = res.data;
-                    // login(token, null, values.remember);
 
                     try {
-                        // const payloadBase64 = token.split(".")[1];
-                        // const decodedJson = atob(payloadBase64);
-                        // const payload = JSON.parse(decodedJson);
-
-                        // console.log("=== ДЕКОДИРОВАННЫЙ ТОКЕН ===");
-                        // console.log("Subject:", payload.sub);
-                        // console.log("Authorities:", payload.userAuthorities);
-                        // console.log("User Data:", payload.userData);
-                        // console.log("=== КОНЕЦ ===");
-
-                        // const userRoleFromToken = payload.userAuthorities?.[0];
-                        // console.log("Роль из токена:", userRoleFromToken);
 
                         const userResponse = await usersApi.getCurrentUser();
                         console.log("Данные пользователя:", userResponse);
@@ -122,7 +109,11 @@ export default function LoginPage(): React.JSX.Element {
     };
 
     return (
-        <Layout>
+        <Layout
+            style={{
+                backgroundColor: "#212D3B",
+            }}
+        >
             <Content>
                 <Flex justify="center" align="center">
                     <AuthCard>
@@ -194,7 +185,6 @@ export default function LoginPage(): React.JSX.Element {
                                 </Form.Item>
 
                                 <Form.Item
-                                    // label="Пароль"
                                     name="password"
                                     rules={[
                                         {
@@ -220,14 +210,16 @@ export default function LoginPage(): React.JSX.Element {
                                             valuePropName="checked"
                                             style={{ marginBottom: 0 }}
                                         >
-                                            <Checkbox>Запомнить меня</Checkbox>
+                                            <Checkbox style={{ color: "#fff" }}>
+                                                Запомнить меня
+                                            </Checkbox>
                                         </Form.Item>
                                     </Col>
-                                    <Col>
+                                    {/* <Col>
                                         <Link to="/forgot-password">
                                             Забыли пароль?
                                         </Link>
-                                    </Col>
+                                    </Col> */}
                                 </Row>
 
                                 <Form.Item style={{ marginBottom: 0 }}>
