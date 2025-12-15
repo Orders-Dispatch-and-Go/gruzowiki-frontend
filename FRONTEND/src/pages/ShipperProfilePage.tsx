@@ -76,7 +76,14 @@ const ShipperProfilePage: React.FC = () => {
     }
 
     return (
-        <Content style={{ padding: "24px", color: "#212D3B" }}>
+        <Content
+            style={{
+                padding: "24px",
+                marginRight: "24px",
+                marginLeft: "24px",
+                color: "#212D3B",
+            }}
+        >
             <Space direction="vertical" size="large" style={{ width: "100%" }}>
                 <Title level={2}>Личный кабинет</Title>
 
@@ -87,25 +94,32 @@ const ShipperProfilePage: React.FC = () => {
                             icon={<EditOutlined />}
                             onClick={handleEditClick}
                             disabled
+                            style={{ color: "#F4F6F7" }}
                         >
                             Изменить сведения
                         </Button>
                     }
-                    // style={{
-                    //     // backgroundColor: "#293645",
-                    //     borderRadius: 32,
-                    //     margin: 16,
-                    //     border: "none",
-                    // }}
-                    // bodyStyle={{
-                    //     padding: 0,
-                    //     // backgroundColor: "#293645",
-                    //     borderRadius: 32,
-                    //     border: "none",
-                    // }}
+                    style={{
+                        backgroundColor: "#293645",
+                        borderRadius: 32,
+                        // margin: 16,
+                        border: "none",
+                    }}
+                    bodyStyle={{
+                        // padding: 0,
+                        backgroundColor: "#293645",
+                        borderRadius: 32,
+                        border: "none",
+                    }}
                 >
-                    <Descriptions style={{ width: "45%" }} bordered column={1}>
-                      <Descriptions.Item label="Роль">
+                    <Descriptions
+                        style={{ width: "45%" }}
+                        labelStyle={{ color: "#F4F6F7" }}
+                        contentStyle={{ color: "#F4F6F7" }}
+                        bordered
+                        column={1}
+                    >
+                        <Descriptions.Item label="Роль">
                             {user?.role === "ROLE_CONSIGNER"
                                 ? "Грузоотправитель"
                                 : "Грузоперевозчик"}
@@ -146,7 +160,6 @@ const ShipperProfilePage: React.FC = () => {
                                       ).toLocaleDateString("ru-RU")
                                     : "Не указана")}
                         </Descriptions.Item>
-                        
                     </Descriptions>
                 </Card>
             </Space>

@@ -463,17 +463,6 @@ export default function RegisterPage(): React.JSX.Element {
                                             Продолжить
                                         </Button>
                                     </Form.Item>
-
-                                    <Form.Item
-                                        style={{
-                                            textAlign: "center",
-                                            marginBottom: 0,
-                                        }}
-                                    >
-                                        <Link to="/login">
-                                            <Button type="link">Войти</Button>
-                                        </Link>
-                                    </Form.Item>
                                 </Form>
                             )}
 

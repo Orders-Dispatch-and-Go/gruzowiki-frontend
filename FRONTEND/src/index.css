@@ -46,3 +46,23 @@ body {
 h2.ant-typography {
   color: white !important;
 }
+
+/* Внешняя рамка всей таблицы */
+.ant-descriptions-bordered {
+  border: #293645; /* цвет внешней границы */
+}
+
+/* Лейблы (левая колонка) */
+.ant-descriptions-bordered .ant-descriptions-item-label {
+  border-right: #293645; /* правая граница */
+  border-bottom: #293645; /* нижняя граница */
+}
+
+/* Контент (правая колонка) */
+.ant-descriptions-bordered .ant-descriptions-item-content {
+  border-bottom: #293645; /* нижняя граница */
+}
+
+/* .ant-card-extra {
+  border-top: none !important;
+} */
