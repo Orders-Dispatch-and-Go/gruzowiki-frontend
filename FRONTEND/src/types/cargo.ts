@@ -33,17 +33,13 @@ export interface CargoRequest {
   recipientId: number;
   createdAt: number;
   deadline: number;
-  calculatedTripId: string | null;
-  actualTripId: string | null;
+  routeId: string | null;
+  tripId: string | null;
   fromStation: Station;
   toStation: Station;
   price: string;
   status: string;
-  recipientName?: string;
-}
-
-export interface CargoRequestWithRecipient extends CargoRequest {
-  recipientName: string;
+  receiveCode: string;
 }
 
 export interface CargoRequestResponse {

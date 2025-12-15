@@ -7,9 +7,9 @@ const { Content } = Layout;
 
 export default function MainLayout(): React.JSX.Element {
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: "100vh"}}>
       <RoleHeader />
-      <Content style={{ padding: "20px" }}>
+      <Content style={{ padding: "20px", background: "#212D3B"  }}>
         <Outlet />
       </Content>
     </Layout>

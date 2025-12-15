@@ -359,8 +359,6 @@ const ShipperCreateRequestPage: React.FC = () => {
                 },
             }));
 
-            // Выполняем создание с учетом текущего шага
-            // await executeCreationFlow(partialData);
             await executeCreationFlow(partialData, {
                 ...creationState,
                 formData: {
@@ -384,7 +382,7 @@ const ShipperCreateRequestPage: React.FC = () => {
         const { recipientData, requestData, cargoItems } = data;
 
         try {
-            // Шаг 1: Создание получателя (если еще не создан)
+            // Создание получателя (если еще не создан)
             if (
                 creationState.step === "initial" ||
                 !creationState.recipientId
@@ -424,7 +422,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                 }
             }
 
-            // Шаг 2: Создание заявки (если еще не создана)
+            // Создание заявки (если еще не создана)
             if (state.step === "recipient_created" || !state.requestId) {
                 message.loading("Создание заявки...", 0);
 
@@ -475,31 +473,20 @@ const ShipperCreateRequestPage: React.FC = () => {
                 }
             }
 
-            // Шаг 3: Создание груза (если еще не создан)
+            // Создание груза (если еще не создан)
             if (state.step === "request_created") {
                 message.loading("Создание груза...", 0);
-                // console.log("Финальная maxPrice, отправка на сервер:", partialData.requestData.maxPrice);
-
 
                 try {
                     const cargoData = cargoItems.map((item) => ({
                         ...item,
                         cargoRequestId: state.requestId!,
                     }));
-        console.log("Данные груза, отправка на сервер:", cargoData);
+                    console.log("Данные груза, отправка на сервер:", cargoData);
 
                     const cargoResponse = await cargoRequestsApi.createCargo(
                         cargoData
                     );
-
-                    // const newStateAfterCargo = {
-                    //     ...state,
-                    //     step: "complete" as const,
-                    //     createdCargoIds: cargoResponse.ids,
-                    //     errors: { ...state.errors, cargo: undefined },
-                    // };
-
-                    // setCreationState(newStateAfterCargo);
 
                     message.destroy();
                     message.success("Груз создан");
@@ -508,9 +495,6 @@ const ShipperCreateRequestPage: React.FC = () => {
                     localStorage.removeItem("pending_request");
 
                     navigate(`/shipper/request/success/${state.requestId}`);
-
-                    // Редирект
-                    // setTimeout(() => navigate("/shipper/home"), 1000);
                 } catch (error: any) {
                     setCreationState((prev) => ({
                         ...prev,

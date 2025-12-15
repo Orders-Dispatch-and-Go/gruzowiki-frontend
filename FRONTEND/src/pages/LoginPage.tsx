@@ -66,7 +66,6 @@ export default function LoginPage(): React.JSX.Element {
                     const { user, token } = res.data;
 
                     try {
-
                         const userResponse = await usersApi.getCurrentUser();
                         console.log("Данные пользователя:", userResponse);
 
@@ -230,8 +229,8 @@ export default function LoginPage(): React.JSX.Element {
                                         loading={loading}
                                         size="large"
                                         style={{
-                                            backgroundColor: "orange",
-                                            borderColor: "orange",
+                                            backgroundColor: "#FAAD14",
+                                            borderColor: "#FAAD14",
                                         }}
                                     >
                                         Войти

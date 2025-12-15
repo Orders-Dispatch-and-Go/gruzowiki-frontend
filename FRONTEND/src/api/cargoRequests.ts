@@ -20,8 +20,8 @@ const mockCargoRequests: CargoRequest[] = [
         recipientId: 2,
         createdAt: Math.floor(Date.now() / 1000) - 86400, // вчера
         deadline: Math.floor(Date.now() / 1000) + 86400 * 7, // через неделю
-        calculatedTripId: null,
-        actualTripId: null,
+        routeId: null,
+        tripId: null,
         fromStation: {
             address: "Москва, ул. Тверская, д. 1",
             coords: { lat: 55.7558, lon: 37.6173 },
@@ -39,8 +39,8 @@ const mockCargoRequests: CargoRequest[] = [
         recipientId: 3,
         createdAt: Math.floor(Date.now() / 1000) - 172800, // 2 дня назад
         deadline: Math.floor(Date.now() / 1000) + 86400 * 3, // через 3 дня
-        calculatedTripId: "trip-1",
-        actualTripId: "trip-1",
+        routeId: "trip-1",
+        tripId: "trip-1",
         fromStation: {
             address: "Москва, Ленинградский проспект, д. 15",
             coords: { lat: 55.7961, lon: 37.535 },
@@ -58,8 +58,8 @@ const mockCargoRequests: CargoRequest[] = [
         recipientId: 4,
         createdAt: Math.floor(Date.now() / 1000) - 432000, // 5 дней назад
         deadline: Math.floor(Date.now() / 1000) + 86400, // завтра
-        calculatedTripId: null,
-        actualTripId: null,
+        routeId: null,
+        tripId: null,
         fromStation: {
             address: "Москва, ул. Арбат, д. 25",
             coords: { lat: 55.7496, lon: 37.5915 },

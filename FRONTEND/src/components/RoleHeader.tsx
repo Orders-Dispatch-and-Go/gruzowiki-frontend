@@ -60,12 +60,11 @@ const AppHeader: React.FC = () => {
     return (
         <AntHeader
             style={{
-                background: "#2b347dff",
+                background: "#001529",
                 padding: "0 24px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                // boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
             }}
         >
             {/* Логотип */}
@@ -92,7 +91,13 @@ const AppHeader: React.FC = () => {
             <Dropdown menu={{ items }} trigger={["click"]}>
                 <Space style={{ cursor: "pointer" }}>
                     <Avatar icon={<UserOutlined />} />
-                    <Text>{user?.name || user?.email || "Пользователь"}</Text>
+                    <Text
+                        style={{
+                            color: "#FFFFFF",
+                        }}
+                    >
+                        {user?.name || user?.email || "Пользователь"}
+                    </Text>
                 </Space>
             </Dropdown>
         </AntHeader>

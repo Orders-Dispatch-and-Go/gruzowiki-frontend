@@ -35,3 +35,14 @@ body {
 		background-color: #f9f9f9;
 	}
 } */
+
+/* Убираем белые линии между колонками в AntD Table */
+.ant-table-cell::before {
+  display: none !important;
+}
+
+
+
+h2.ant-typography {
+  color: white !important;
+}

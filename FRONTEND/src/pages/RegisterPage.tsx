@@ -238,9 +238,7 @@ export default function RegisterPage(): React.JSX.Element {
     };
 
     return (
-        <Layout
-            style={{ backgroundColor: "#212D3B" }}
-        >
+        <Layout style={{ backgroundColor: "#212D3B" }}>
             <Content>
                 <Flex justify="center" align="center">
                     <AuthCard>
@@ -458,8 +456,8 @@ export default function RegisterPage(): React.JSX.Element {
                                             // disabled={!emailVerified}
                                             loading={loading}
                                             style={{
-                                                backgroundColor: "orange",
-                                                borderColor: "orange",
+                                                backgroundColor: "#FAAD14",
+                                                borderColor: "#FAAD14",
                                             }}
                                         >
                                             Продолжить
