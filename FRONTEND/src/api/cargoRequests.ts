@@ -32,6 +32,7 @@ const mockCargoRequests: CargoRequest[] = [
         },
         price: "5000.00",
         status: "создана",
+        receiveCode: "receiveCode0",
     },
     {
         id: "req-2",
@@ -51,6 +52,7 @@ const mockCargoRequests: CargoRequest[] = [
         },
         price: "3000.00",
         status: "одобрена водителем",
+        receiveCode: "receiveCode1",
     },
     {
         id: "req-3",
@@ -70,6 +72,7 @@ const mockCargoRequests: CargoRequest[] = [
         },
         price: "7500.00",
         status: "доставка началась",
+        receiveCode: "receiveCode2",
     },
 ];
 
