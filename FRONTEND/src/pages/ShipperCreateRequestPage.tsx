@@ -327,7 +327,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                     email: values.recipientEmail,
                 },
                 requestData: {
-                    consignerId: parseInt(user.id),
+                    consignerId: Number(user.id),
                     fromStation: await getStationFromAddress(
                         values.fromAddress
                     ),
@@ -510,6 +510,11 @@ const ShipperCreateRequestPage: React.FC = () => {
 
     // Функция для продолжения создания
     const continueCreation = async () => {
+        if (!user?.id) {
+            message.error("Пользователь не авторизован");
+            return;
+        }
+
         if (
             !creationState.formData.recipient ||
             !creationState.formData.request
@@ -523,7 +528,7 @@ const ShipperCreateRequestPage: React.FC = () => {
             const data: PartialRequestData = {
                 recipientData: creationState.formData.recipient,
                 requestData: {
-                    consignerId: creationState.formData.request.consignerId,
+                    consignerId: parseInt(user.id),
                     fromStation: creationState.formData.request.fromStation,
                     toStation: creationState.formData.request.toStation,
                     deadline: creationState.formData.request.deadline,
@@ -585,12 +590,13 @@ const ShipperCreateRequestPage: React.FC = () => {
     }
 
     return (
-        <Layout>
+        <Layout
+        style={{ background: "#212D3B" }}>
             <Content
-                style={{ padding: "24px", maxWidth: 1200, margin: "0 auto" }}
+                style={{ padding: "24px", maxWidth: 1200, margin: "0 auto", background: "#212D3B" }}
             >
                 <Title level={2}>Создание заявки на перевозку</Title>
-                {creationState.step !== "initial" && (
+                {/* {creationState.step !== "initial" && (
                     <Alert
                         message={`Прогресс создания: ${getStepText(
                             creationState.step
@@ -646,7 +652,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                         type="info"
                         style={{ marginBottom: 24 }}
                     />
-                )}
+                )} */}
 
                 <Form
                     form={form}

@@ -397,7 +397,7 @@ export const cargoRequestsApi = {
 
             // Форматирование данных для отправки
         const formattedData: CreateCargoRequestData = {
-            consignerId: requestData.consignerId,
+            consignerId: Number(requestData.consignerId),
             recipientId: requestData.recipientId,
             fromStation: {
                 address: requestData.fromStation.address.trim(),
