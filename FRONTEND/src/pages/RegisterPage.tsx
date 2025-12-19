@@ -560,7 +560,11 @@ export default function RegisterPage(): React.JSX.Element {
                                                 htmlType="submit"
                                                 loading={loading}
                                                 size="large"
-                                                style={{ flex: 1 }}
+                                                style={{
+                                                    flex: 1,
+                                                    backgroundColor: "#FAAD14",
+                                                    borderColor: "#FAAD14",
+                                                }}
                                             >
                                                 Завершить регистрацию
                                             </Button>

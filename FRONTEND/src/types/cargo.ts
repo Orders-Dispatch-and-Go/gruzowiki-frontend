@@ -110,6 +110,7 @@ export interface CreateCargoRequestData {
 
 export interface CreateCargoRequestResponse {
   id: string; // uuid
+  receiveCode: "string";
 }
 
 export interface CargoType {
@@ -138,6 +139,7 @@ export interface RequestCreationState {
         request: CreateCargoRequestData | null;
         cargo: CargoItem[] | null;
     };
+    receiveCode: string | null;
 }
 
 export interface PartialRequestData {

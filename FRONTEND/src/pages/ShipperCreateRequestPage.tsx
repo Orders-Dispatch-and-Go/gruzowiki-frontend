@@ -30,17 +30,12 @@ import type {
     CreateCargoRequestData,
     RequestCreationState,
     PartialRequestData,
+    CreateCargoRequestResponse,
 } from "../types/cargo";
 import dayjs from "dayjs";
-import AutoInput from "../components/AutoInput";
 import { Content } from "antd/es/layout/layout";
-import MapPicker from "../components/MapPicker";
-import type { MapLocation } from "../types/cargo";
 import HybridAddressInput from "../components/HybridAddressInput";
 import "./ShipperCreateRequestPage.css";
-
-
-import Map from "../components/Map";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -91,6 +86,7 @@ const ShipperCreateRequestPage: React.FC = () => {
             request: null,
             cargo: null,
         },
+        receiveCode: null,
     });
 
     const [cargoItem, setCargoItem] = useState<CargoFormItem>({
@@ -300,11 +296,6 @@ const ShipperCreateRequestPage: React.FC = () => {
     //         setLoading(false);
     //     }
     // };
-    const darkInputStyle = {
-    backgroundColor: "#293645",
-    color: "#fff",
-    borderColor: "#3a4a5e",
-};
 
     // Основная функция создания
     const handleSubmit = async (values: any) => {
@@ -459,11 +450,13 @@ const ShipperCreateRequestPage: React.FC = () => {
                             completeRequestData
                         );
 
+
                     const newStateAfterRequest = {
                         ...state,
                         step: "request_created" as const,
                         requestId: requestResponse.id,
                         errors: { ...state.errors, request: undefined },
+                        receiveCode: requestResponse.receiveCode,
                     };
 
                     setCreationState(newStateAfterRequest);
@@ -501,7 +494,9 @@ const ShipperCreateRequestPage: React.FC = () => {
                     // Очищаем состояние
                     localStorage.removeItem("pending_request");
 
-                    navigate(`/shipper/request/success/${state.requestId}`);
+                    navigate(
+                        `/shipper/request/success/${state.receiveCode}`
+                    );
                 } catch (error: any) {
                     setCreationState((prev) => ({
                         ...prev,
@@ -563,6 +558,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                 request: null,
                 cargo: null,
             },
+            receiveCode: null,
         });
         localStorage.removeItem("pending_request");
         form.resetFields();
@@ -668,7 +664,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                 <Form
                     form={form}
                     layout="vertical"
-                                    style={{ color: "#fff" }}
+                    style={{ color: "#fff" }}
                     onFinish={handleSubmit}
                     initialValues={{
                         maxPrice: 1000,
@@ -708,7 +704,9 @@ const ShipperCreateRequestPage: React.FC = () => {
                                         },
                                     ]}
                                 >
-                                    <Input style={darkInputStyle} placeholder="Фамилия" />
+                                    <Input
+                                        placeholder="Фамилия"
+                                    />
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
@@ -877,7 +875,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                     </Card>
 
                     {/* Карточка 2 */}
-                    <Card                        
+                    <Card
                         style={{
                             backgroundColor: "#293645",
                             borderRadius: 32,
@@ -895,7 +893,6 @@ const ShipperCreateRequestPage: React.FC = () => {
                             size="middle"
                         >
                             <Row gutter={16}>
-
                                 <Col span={8}>
                                     <Form.Item
                                         label="Габариты (Д × Ш × В), см"

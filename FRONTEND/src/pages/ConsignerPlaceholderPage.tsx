@@ -11,50 +11,54 @@ const ConsignerPlaceholderPage: React.FC = () => {
     const { user, logout } = useAuth();
 
     return (
-            <Content style={{ padding: "24px" }}>
-{/* Заголовок и кнопки действий */}
-      <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
-        <Col span={24}>
-          <Space direction="vertical" size="large" style={{ width: "100%" }}>
-            <Title level={2}>Страница в разработке</Title>
-            
-            
-          </Space>
-        </Col>
-      </Row>
-
-                <Card style={{ maxWidth: 600, textAlign: "center" }}>
+        <Content style={{ padding: "24px" }}>
+            {/* Заголовок и кнопки действий */}
+            <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
+                <Col span={24}>
                     <Space
                         direction="vertical"
                         size="large"
                         style={{ width: "100%" }}
                     >
-
-                        <Paragraph>
-                            Данная страница временно недоступна. Пожалуйста, воспользуйтесь нашим
-                            мобильным приложением для оформления грузоперевозок.
-                        </Paragraph>
-
-
-                        <div
-                            style={{
-                                display: "flex",
-                                gap: 16,
-                                justifyContent: "center",
-                            }}
-                        >
-                            <Button
-                                type="primary"
-                                onClick={() => logout()}
-                                danger
-                            >
-                                Назад
-                            </Button>
-
-                        </div>
+                        <Title level={2}>Страница в разработке</Title>
                     </Space>
-                </Card>
-            </Content>
+                </Col>
+            </Row>
+
+            <Card style={{ maxWidth: 600, textAlign: "center" }}>
+                <Space
+                    direction="vertical"
+                    size="large"
+                    style={{ width: "100%" }}
+                >
+                    <Paragraph>
+                        Данная страница временно недоступна. Пожалуйста,
+                        воспользуйтесь нашим мобильным приложением для
+                        оформления грузоперевозок.
+                    </Paragraph>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            gap: 16,
+                            justifyContent: "center",
+                        }}
+                    >
+                        <Button
+                            type="primary"
+                            style={{
+                                backgroundColor: "#FAAD14",
+                                borderColor: "#FAAD14",
+                            }}
+                            onClick={() => logout()}
+                            danger
+                        >
+                            Назад
+                        </Button>
+                    </div>
+                </Space>
+            </Card>
+        </Content>
     );
 };
 
