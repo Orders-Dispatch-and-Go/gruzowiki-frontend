@@ -37,6 +37,8 @@ import { Content } from "antd/es/layout/layout";
 import MapPicker from "../components/MapPicker";
 import type { MapLocation } from "../types/cargo";
 import HybridAddressInput from "../components/HybridAddressInput";
+import "./ShipperCreateRequestPage.css";
+
 
 import Map from "../components/Map";
 
@@ -298,6 +300,11 @@ const ShipperCreateRequestPage: React.FC = () => {
     //         setLoading(false);
     //     }
     // };
+    const darkInputStyle = {
+    backgroundColor: "#293645",
+    color: "#fff",
+    borderColor: "#3a4a5e",
+};
 
     // Основная функция создания
     const handleSubmit = async (values: any) => {
@@ -590,10 +597,14 @@ const ShipperCreateRequestPage: React.FC = () => {
     }
 
     return (
-        <Layout
-        style={{ background: "#212D3B" }}>
+        <Layout style={{ background: "#212D3B" }}>
             <Content
-                style={{ padding: "24px", maxWidth: 1200, margin: "0 auto", background: "#212D3B" }}
+                style={{
+                    padding: "24px",
+                    maxWidth: 1200,
+                    margin: "0 auto",
+                    background: "#212D3B",
+                }}
             >
                 <Title level={2}>Создание заявки на перевозку</Title>
                 {/* {creationState.step !== "initial" && (
@@ -657,13 +668,25 @@ const ShipperCreateRequestPage: React.FC = () => {
                 <Form
                     form={form}
                     layout="vertical"
+                                    style={{ color: "#fff" }}
                     onFinish={handleSubmit}
                     initialValues={{
                         maxPrice: 1000,
                     }}
                 >
                     {/* карточка 1 */}
-                    <Card style={{ marginBottom: 24 }}>
+                    <Card
+                        style={{
+                            backgroundColor: "#293645",
+                            borderRadius: 32,
+                            marginBottom: 24,
+                            border: "none",
+                        }}
+                        bodyStyle={{
+                            backgroundColor: "#293645",
+                            borderRadius: 32,
+                        }}
+                    >
                         <Row gutter={16}>
                             <Col span={8}>
                                 <Form.Item
@@ -685,7 +708,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                                         },
                                     ]}
                                 >
-                                    <Input placeholder="Фамилия" />
+                                    <Input style={darkInputStyle} placeholder="Фамилия" />
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
@@ -759,7 +782,13 @@ const ShipperCreateRequestPage: React.FC = () => {
                                 <Form.Item
                                     name="recipientPhone"
                                     label="Номер телефона получателя"
-                                    rules={[{ validator: validatePhone }]}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Обязательное поле",
+                                            validator: validatePhone,
+                                        },
+                                    ]}
                                 >
                                     <Input placeholder="+7XXXXXXXXXX" />
                                 </Form.Item>
@@ -848,9 +877,17 @@ const ShipperCreateRequestPage: React.FC = () => {
                     </Card>
 
                     {/* Карточка 2 */}
-                    <Card
-                        title="Информация о грузах"
-                        style={{ marginBottom: 24 }}
+                    <Card                        
+                        style={{
+                            backgroundColor: "#293645",
+                            borderRadius: 32,
+                            marginBottom: 24,
+                            border: "none",
+                        }}
+                        bodyStyle={{
+                            backgroundColor: "#293645",
+                            borderRadius: 32,
+                        }}
                     >
                         <Space
                             direction="vertical"
@@ -858,23 +895,6 @@ const ShipperCreateRequestPage: React.FC = () => {
                             size="middle"
                         >
                             <Row gutter={16}>
-                                {/* <Col span={4}>
-                                    <Form.Item label="Высота (см)" required>
-                                        <InputNumber
-                                            value={cargoItem.height}
-                                            onChange={(value) =>
-                                                updateCargoField(
-                                                    "height",
-                                                    value || 0
-                                                )
-                                            }
-                                            min={1}
-                                            max={500}
-                                            style={{ width: "100%" }}
-                                            placeholder="Высота"
-                                        />
-                                    </Form.Item>
-                                </Col> */}
 
                                 <Col span={8}>
                                     <Form.Item

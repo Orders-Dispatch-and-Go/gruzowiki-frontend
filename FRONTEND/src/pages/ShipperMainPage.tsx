@@ -234,6 +234,7 @@ const ShipperMainPage: React.FC = () => {
                                 <Button
                                     type="primary"
                                     onClick={handleCreateRequest}
+                                    
                                 >
                                     Создать первую заявку
                                 </Button>
