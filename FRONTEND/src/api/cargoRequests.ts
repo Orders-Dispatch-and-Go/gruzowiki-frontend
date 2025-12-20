@@ -598,7 +598,7 @@ export const cargoRequestsApi = {
             width: cargoData.width,
             weight: cargoData.weight,
             cargoType: cargoData.cargoType,
-            description: cargoData.description || "",
+            // description: cargoData.description || "",
             worth: cargoData.worth || 0,
             cargoRequestId: cargoRequestId,
         };
