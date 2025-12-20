@@ -15,7 +15,6 @@ import {
     Select,
     Layout,
 } from "antd";
-// import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { cargoRequestsApi } from "../api/cargoRequests";
@@ -30,12 +29,16 @@ import type {
     CreateCargoRequestData,
     RequestCreationState,
     PartialRequestData,
-    CreateCargoRequestResponse,
 } from "../types/cargo";
 import dayjs from "dayjs";
 import { Content } from "antd/es/layout/layout";
 import HybridAddressInput from "../components/HybridAddressInput";
 import "./ShipperCreateRequestPage.css";
+import {
+    validateEmail,
+    validateName,
+    validatePhone,
+} from "../utils/validators";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -46,7 +49,6 @@ interface CargoFormItem extends Omit<CargoItem, "cargoType"> {
     key: number;
 }
 
-// В начале компонента ShipperCreateRequestPage, после импортов
 const fetchAddressSuggestions = async (
     query: string
 ): Promise<AddressSuggestion[]> => {
@@ -96,7 +98,6 @@ const ShipperCreateRequestPage: React.FC = () => {
         width: 10,
         weight: 1,
         cargoType: 1,
-        // description: "",
         worth: 0,
     });
 
@@ -146,33 +147,6 @@ const ShipperCreateRequestPage: React.FC = () => {
         }
     }, [creationState]);
 
-    // Валидации
-    const validatePhone = (_: any, value: string) => {
-        const phoneRegex = /^\+7\d{10}$/;
-        if (!value) {
-            return Promise.reject(new Error("Обязательное поле"));
-        }
-        if (!phoneRegex.test(value)) {
-            return Promise.reject(new Error("Формат: +7XXXXXXXXXX"));
-        }
-        return Promise.resolve();
-    };
-
-    // Валидации
-    const validateEmail = (_: any, value: string) => {
-        const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-
-        if (!value) {
-            return Promise.reject(new Error("Обязательное поле"));
-        }
-
-        if (!emailRegex.test(value)) {
-            return Promise.reject(new Error("Формат: example@domain.com"));
-        }
-
-        return Promise.resolve();
-    };
-
     // Функция для обновления одного поля груза
     const updateCargoField = (field: keyof CargoFormItem, value: any) => {
         setCargoItem((prev) => ({ ...prev, [field]: value }));
@@ -183,134 +157,6 @@ const ShipperCreateRequestPage: React.FC = () => {
         const total = item.length + item.width + item.height;
         return total <= 1000;
     };
-
-    const validateAddressSelection = (_: any, value: AddressData) => {
-        if (!value?.isValid) {
-            return Promise.reject(
-                new Error("Выберите адрес из списка предложений")
-            );
-        }
-        return Promise.resolve();
-    };
-
-    // // Отправка формы
-    // const handleSubmit = async (values: any) => {
-    //     if (!user?.id) {
-    //         message.error("Пользователь не авторизован");
-    //         return;
-    //     }
-
-    //     // Проверка суммы габаритов
-    //     if (!validateTotalDimensions(cargoItem)) {
-    //         message.error(
-    //             "Сумма габаритов (Д+Ш+В) не должна превышать 1000 см для каждого груза"
-    //         );
-    //         return;
-    //     }
-
-    //     setLoading(true);
-
-    //     try {
-    //         // 1. Создаем получателя
-    //         const recipientData: RecipientData = {
-    //             firstname: values.recipientFirstName,
-    //             secondname: values.recipientLastName,
-    //             thirdname: values.recipientMiddleName || "",
-    //             phone: values.recipientPhone,
-    //             email: values.recipientEmail,
-    //         };
-
-    //         const recipientResponse = await recipientsApi.createRecipient(
-    //             recipientData
-    //         );
-
-    //         // 2. Получаем и валидируем данные адресов
-    //         const fromAddressData: AddressData = values.fromAddress;
-    //         const toAddressData: AddressData = values.toAddress;
-
-    //         if (!fromAddressData?.isValid || !fromAddressData.coords) {
-    //             throw new Error("Неверный адрес отправления");
-    //         }
-
-    //         if (!toAddressData?.isValid || !toAddressData.coords) {
-    //             throw new Error("Неверный адрес доставки");
-    //         }
-
-    //         // 3. Преобразуем AddressData в Station
-    //         const fromStation: Station = {
-    //             address: fromAddressData.address,
-    //             coords: fromAddressData.coords,
-    //         };
-
-    //         const toStation: Station = {
-    //             address: toAddressData.address,
-    //             coords: toAddressData.coords,
-    //         };
-
-    //         // 4. Создаем заявку
-    //         const requestData: CreateCargoRequestData = {
-    //             consignerId: parseInt(user.id),
-    //             recipientId: recipientResponse.id,
-    //             fromStation: fromStation,
-    //             toStation: toStation,
-    //             deadline: values.deadline.format("YYYY-MM-DDTHH:mm:ssZ"), // dayjs формат
-    //             maxPrice: values.maxPrice.toString(),
-    //         };
-    //         console.log("Request data for API:", requestData);
-
-    //         // // 2. Создаем заявку
-    //         // const requestData = {
-    //         //     consignerId: parseInt(user.id),
-    //         //     recipientId: recipientResponse.id,
-    //         //     fromStation: {
-    //         //         address: values.fromAddress,
-    //         //         coords: {
-    //         //             lat: 55.7558, // Моковые координаты
-    //         //             lon: 37.6173,
-    //         //         },
-    //         //     },
-    //         //     toStation: {
-    //         //         address: values.toAddress,
-    //         //         coords: {
-    //         //             lat: 59.9343, // Моковые координаты
-    //         //             lon: 30.3351,
-    //         //         },
-    //         //     },
-    //         //     deadline: dayjs(values.deadline).format("YYYY-MM-DDTHH:mm:ssZ"),
-    //         //     maxPrice: values.maxPrice.toString(),
-    //         // };
-
-    //         const requestResponse = await cargoRequestsApi.createCargoRequest(
-    //             requestData
-    //         );
-
-    //         // 3. Создаем грузы
-    //         const cargoData: CargoItem[] = [
-    //             {
-    //                 length: cargoItem.length,
-    //                 height: cargoItem.height,
-    //                 width: cargoItem.width,
-    //                 weight: cargoItem.weight,
-    //                 cargoType: cargoItem.cargoType,
-    //                 description: cargoItem.description || "",
-    //                 worth: cargoItem.worth,
-    //                 cargoRequestId: requestResponse.id,
-    //             },
-    //         ];
-
-    //         await cargoRequestsApi.createCargo(cargoData);
-
-    //         message.success("Заявка успешно создана!");
-
-    //         // Редирект на главную страницу
-    //         navigate("/shipper/home");
-    //     } catch (error: any) {
-    //         console.error("Error creating request:", error);
-    //         message.error("Ошибка при создании заявки");
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
 
     // Основная функция создания
     const handleSubmit = async (values: any) => {
@@ -355,9 +201,8 @@ const ShipperCreateRequestPage: React.FC = () => {
                         width: cargoItem.width,
                         weight: cargoItem.weight,
                         cargoType: cargoItem.cargoType,
-                        // description: cargoItem.description || "",
                         worth: cargoItem.worth,
-                        cargoRequestId: "", // заполним позже
+                        cargoRequestId: "",
                     },
                 ],
             };
@@ -395,7 +240,6 @@ const ShipperCreateRequestPage: React.FC = () => {
         const { recipientData, requestData, cargoItems } = data;
 
         try {
-            // Создание получателя (если еще не создан)
             if (
                 creationState.step === "initial" ||
                 !creationState.recipientId
@@ -406,12 +250,6 @@ const ShipperCreateRequestPage: React.FC = () => {
                     const recipientResponse =
                         await recipientsApi.createRecipient(recipientData);
 
-                    // setCreationState((prev) => ({
-                    //     ...prev,
-                    //     step: "recipient_created",
-                    //     recipientId: recipientResponse.id,
-                    //     errors: { ...prev.errors, recipient: undefined },
-                    // }));
                     const newStateAfterRecipient = {
                         ...state,
                         step: "recipient_created" as const,
@@ -710,9 +548,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                                             message: "Максимум 100 символов",
                                         },
                                         {
-                                            pattern: /^[а-яА-ЯёЁ\s\-]+$/,
-                                            message:
-                                                "Только кириллица, пробелы и дефисы",
+                                            validator: validateName,
                                         },
                                     ]}
                                 >
@@ -733,9 +569,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                                             message: "Максимум 100 символов",
                                         },
                                         {
-                                            pattern: /^[а-яА-ЯёЁ\s\-]+$/,
-                                            message:
-                                                "Только кириллица, пробелы и дефисы",
+                                            validator: validateName,
                                         },
                                     ]}
                                 >
@@ -752,9 +586,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                                             message: "Максимум 100 символов",
                                         },
                                         {
-                                            pattern: /^[а-яА-ЯёЁ\s\-]*$/,
-                                            message:
-                                                "Только кириллица, пробелы и дефисы",
+                                            validator: validateName,
                                         },
                                     ]}
                                 >
@@ -1023,23 +855,6 @@ const ShipperCreateRequestPage: React.FC = () => {
                                         />
                                     </Form.Item>
                                 </Col>
-                                {/* <Col span={8}>
-                                    <Form.Item label="Описание груза">
-                                        <Input.TextArea
-                                            value={cargoItem.description}
-                                            onChange={(e) =>
-                                                updateCargoField(
-                                                    "description",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Описание груза"
-                                            maxLength={500}
-                                            rows={3}
-                                            showCount
-                                        />
-                                    </Form.Item>
-                                </Col> */}
                             </Row>
 
                             <Form.Item label="Тип груза">

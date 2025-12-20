@@ -20,6 +20,12 @@ import { useAuth } from "../context/AuthContext";
 import { doRegister, checkEmail, doLogin } from "../api/auth";
 import dayjs from "dayjs";
 
+import {
+    validateEmail,
+    validatePhone,
+    validateName,
+} from "../utils/validators";
+
 const { Content } = Layout;
 const { Text } = Typography;
 
@@ -162,9 +168,7 @@ export default function RegisterPage(): React.JSX.Element {
             return role;
         }
         console.log("stupid role " + role);
-        // Значение по умолчанию или ошибка
         throw new Error("Invalid role");
-        // или: return "ROLE_CONSIGNER"; // значение по умолчанию
     };
 
     // Обработчик второй формы (профиль)
@@ -277,23 +281,25 @@ export default function RegisterPage(): React.JSX.Element {
                                     initialValues={{ role: "ROLE_CONSIGNER" }}
                                 >
                                     <Form.Item
-                                        // label="Email"
                                         name="email"
                                         rules={[
                                             {
                                                 required: true,
-                                                message: "Введите email",
+                                                message: "Обязательное поле",
                                             },
                                             {
-                                                type: "email",
-                                                message:
-                                                    "Введите корректный email",
+                                                validator: validateEmail,
                                             },
                                             {
-                                                max: 128,
+                                                max: 100,
                                                 message:
-                                                    "Максимум 128 символов",
+                                                    "Максимум 100 символов",
                                             },
+                                            // {
+                                            //     type: "email",
+                                            //     message:
+                                            //         "Введите корректный email",
+                                            // },
                                         ]}
                                     >
                                         <Input
@@ -481,6 +487,14 @@ export default function RegisterPage(): React.JSX.Element {
                                                 required: true,
                                                 message: "Введите фамилию",
                                             },
+                                            {
+                                                max: 100,
+                                                message:
+                                                    "Максимум 100 символов",
+                                            },
+                                            {
+                                                validator: validateName,
+                                            },
                                         ]}
                                     >
                                         <Input
@@ -496,19 +510,51 @@ export default function RegisterPage(): React.JSX.Element {
                                                 required: true,
                                                 message: "Введите имя",
                                             },
+                                            {
+                                                max: 100,
+                                                message:
+                                                    "Максимум 100 символов",
+                                            },
+                                            {
+                                                validator: validateName,
+                                            },
                                         ]}
                                     >
                                         <Input placeholder="Имя" size="large" />
                                     </Form.Item>
 
-                                    <Form.Item name="middleName">
+                                    <Form.Item
+                                        name="middleName"
+                                        rules={[
+                                            {
+                                                max: 100,
+                                                message:
+                                                    "Максимум 100 символов",
+                                            },
+                                            {
+                                                validator: validateName,
+                                            },
+                                        ]}
+                                    >
                                         <Input
                                             placeholder="Отчество (необязательно)"
                                             size="large"
                                         />
                                     </Form.Item>
 
-                                    <Form.Item name="phone">
+                                    <Form.Item
+                                        name="phone"
+                                        label="Номер телефона получателя"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: "Обязательное поле",
+                                            },
+                                            {
+                                                validator: validatePhone,
+                                            },
+                                        ]}
+                                    >
                                         <Input
                                             placeholder="+7XXXXXXXXXX"
                                             size="large"

@@ -13,7 +13,6 @@ import {
     Flex,
 } from "antd";
 import { AuthCard } from "../components/AuthCard";
-import { AuthTabs } from "../components/AuthTabs";
 import { useForgotPassword } from "../hooks/useForgotPassword";
 
 const { Text } = Typography;
@@ -24,10 +23,6 @@ export default function ForgotPasswordPage(): React.JSX.Element {
 
     const { loading, serverError, successMessage, handleForgotPassword } =
         useForgotPassword();
-
-    const onTabChange = (key: string) => {
-        navigate(key);
-    };
 
     const onFinish = async (values: { email: string }) => {
         await handleForgotPassword(values.email);

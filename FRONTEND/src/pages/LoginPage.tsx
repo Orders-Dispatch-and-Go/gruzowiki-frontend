@@ -19,6 +19,7 @@ import { useAuth, type User } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthTabs } from "../components/AuthTabs";
 import { usersApi } from "../api/users";
+import { validateEmail } from "../utils/validators";
 
 const { Content } = Layout;
 
@@ -169,16 +170,19 @@ export default function LoginPage(): React.JSX.Element {
                                     rules={[
                                         {
                                             required: true,
-                                            message: "Введите email",
+                                            message: "Обязательное поле",
                                         },
                                         {
-                                            type: "email",
-                                            message: "Введите корректный email",
+                                            validator: validateEmail,
+                                        },
+                                        {
+                                            max: 100,
+                                            message: "Максимум 100 символов",
                                         },
                                     ]}
                                 >
                                     <Input
-                                        placeholder="Введите email"
+                                        placeholder="email@example.com"
                                         size="large"
                                     />
                                 </Form.Item>
