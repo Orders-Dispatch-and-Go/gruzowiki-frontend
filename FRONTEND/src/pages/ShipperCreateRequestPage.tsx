@@ -96,7 +96,7 @@ const ShipperCreateRequestPage: React.FC = () => {
         width: 10,
         weight: 1,
         cargoType: 1,
-        description: "",
+        // description: "",
         worth: 0,
     });
 
@@ -155,6 +155,21 @@ const ShipperCreateRequestPage: React.FC = () => {
         if (!phoneRegex.test(value)) {
             return Promise.reject(new Error("Формат: +7XXXXXXXXXX"));
         }
+        return Promise.resolve();
+    };
+
+    // Валидации
+    const validateEmail = (_: any, value: string) => {
+        const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
+        if (!value) {
+            return Promise.reject(new Error("Обязательное поле"));
+        }
+
+        if (!emailRegex.test(value)) {
+            return Promise.reject(new Error("Формат: example@domain.com"));
+        }
+
         return Promise.resolve();
     };
 
@@ -340,7 +355,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                         width: cargoItem.width,
                         weight: cargoItem.weight,
                         cargoType: cargoItem.cargoType,
-                        description: cargoItem.description || "",
+                        // description: cargoItem.description || "",
                         worth: cargoItem.worth,
                         cargoRequestId: "", // заполним позже
                     },
@@ -450,7 +465,6 @@ const ShipperCreateRequestPage: React.FC = () => {
                             completeRequestData
                         );
 
-
                     const newStateAfterRequest = {
                         ...state,
                         step: "request_created" as const,
@@ -494,9 +508,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                     // Очищаем состояние
                     localStorage.removeItem("pending_request");
 
-                    navigate(
-                        `/shipper/request/success/${state.receiveCode}`
-                    );
+                    navigate(`/shipper/request/success/${state.receiveCode}`);
                 } catch (error: any) {
                     setCreationState((prev) => ({
                         ...prev,
@@ -694,8 +706,8 @@ const ShipperCreateRequestPage: React.FC = () => {
                                             message: "Обязательное поле",
                                         },
                                         {
-                                            max: 40,
-                                            message: "Максимум 40 символов",
+                                            max: 100,
+                                            message: "Максимум 100 символов",
                                         },
                                         {
                                             pattern: /^[а-яА-ЯёЁ\s\-]+$/,
@@ -704,9 +716,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                                         },
                                     ]}
                                 >
-                                    <Input
-                                        placeholder="Фамилия"
-                                    />
+                                    <Input placeholder="Фамилия" />
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
@@ -719,8 +729,8 @@ const ShipperCreateRequestPage: React.FC = () => {
                                             message: "Обязательное поле",
                                         },
                                         {
-                                            max: 30,
-                                            message: "Максимум 30 символов",
+                                            max: 100,
+                                            message: "Максимум 100 символов",
                                         },
                                         {
                                             pattern: /^[а-яА-ЯёЁ\s\-]+$/,
@@ -738,8 +748,8 @@ const ShipperCreateRequestPage: React.FC = () => {
                                     label="Отчество"
                                     rules={[
                                         {
-                                            max: 40,
-                                            message: "Максимум 40 символов",
+                                            max: 100,
+                                            message: "Максимум 100 символов",
                                         },
                                         {
                                             pattern: /^[а-яА-ЯёЁ\s\-]*$/,
@@ -764,12 +774,11 @@ const ShipperCreateRequestPage: React.FC = () => {
                                             message: "Обязательное поле",
                                         },
                                         {
-                                            type: "email",
-                                            message: "Неверный формат email",
+                                            validator: validateEmail,
                                         },
                                         {
-                                            max: 128,
-                                            message: "Максимум 128 символов",
+                                            max: 100,
+                                            message: "Максимум 100 символов",
                                         },
                                     ]}
                                 >
@@ -784,6 +793,8 @@ const ShipperCreateRequestPage: React.FC = () => {
                                         {
                                             required: true,
                                             message: "Обязательное поле",
+                                        },
+                                        {
                                             validator: validatePhone,
                                         },
                                     ]}
@@ -1012,7 +1023,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
+                                {/* <Col span={8}>
                                     <Form.Item label="Описание груза">
                                         <Input.TextArea
                                             value={cargoItem.description}
@@ -1028,7 +1039,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                                             showCount
                                         />
                                     </Form.Item>
-                                </Col>
+                                </Col> */}
                             </Row>
 
                             <Form.Item label="Тип груза">

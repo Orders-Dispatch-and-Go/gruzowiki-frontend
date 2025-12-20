@@ -62,7 +62,7 @@ export interface CargoItem {
   width: number;
   weight: number;
   cargoType: number;
-  description: string;
+  // description: string;
   worth: number;
   cargoRequestId?: string;
 }
