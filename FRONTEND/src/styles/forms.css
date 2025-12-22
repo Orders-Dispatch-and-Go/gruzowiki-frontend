@@ -1,0 +1,46 @@
+/* src/styles/forms.css */
+
+/* Базовый отступ для Form.Item внутри .app-form */
+.app-form .ant-form-item {
+  margin-bottom: 16px; /* можно настроить */
+}
+
+/* Убираем отступ у последнего видимого элемента в форме */
+.app-form .ant-form-item:not(.ant-form-item-hidden):last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Если внутри есть Alert, сохраняем отступ между Alert и следующими элементами */
+/* Можно настроить дополнительные селекторы при необходимости */
+.app-form > .ant-alert + .ant-form,
+.app-form .ant-alert {
+  margin-bottom: 12px;
+}
+
+/* Общий стиль для input'ов в этих формах */
+.app-form .ant-input,
+.app-form .ant-input-affix-wrapper,
+.app-form .ant-input-password,
+.app-form .ant-select-selector {
+  border-radius: 8px;
+  /* padding etc можно добавлять */
+}
+
+/* Кнопка primary внутри .app-form (оранжевая) */
+.app-form .ant-btn-primary {
+  background-color: #fa8c16;
+  border-color: #fa8c16;
+  box-shadow: none;
+}
+
+/* Hover/active состояния (более светлый оранжевый) */
+.app-form .ant-btn-primary:hover,
+.app-form .ant-btn-primary:focus {
+  background-color: #ff9c3b;
+  border-color: #ff9c3b;
+}
+
+/* Если нужна меньшая ширина label или изменение шрифта */
+.app-form .ant-form-item-label > label {
+  font-weight: 500;
+}

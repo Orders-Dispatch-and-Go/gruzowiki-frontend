@@ -1,0 +1,24 @@
+.tabs {
+  color: #ffffff;
+}
+
+/* Текст вкладок */
+.tabs :global(.ant-tabs-tab) {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Активная вкладка */
+.tabs :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+/* Нижняя линия (индикатор) */
+.tabs :global(.ant-tabs-ink-bar) {
+  background-color: #ffffff;
+}
+
+/* Hover */
+.tabs :global(.ant-tabs-tab:hover) {
+  color: #ffffff;
+}

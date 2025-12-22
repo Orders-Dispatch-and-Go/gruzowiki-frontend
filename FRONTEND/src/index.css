@@ -4,8 +4,8 @@
 	font-weight: 400;
 
 	color-scheme: light dark;
-	color: rgba(255, 255, 255, 0.87);
-	background-color: #242424;
+	/* color: rgba(255, 255, 255, 0.87); */
+	background-color: #db5d5d;
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -13,47 +13,16 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-a {
-	font-weight: 500;
-	color: #646cff;
-	text-decoration: inherit;
-}
-a:hover {
+/* a:hover {
 	color: #535bf2;
-}
+} */
 
 body {
 	margin: 0;
-	display: flex;
-	place-items: center;
-	min-width: 320px;
 	min-height: 100vh;
 }
 
-h1 {
-	font-size: 3.2em;
-	line-height: 1.1;
-}
-
-button {
-	border-radius: 8px;
-	border: 1px solid transparent;
-	padding: 0.6em 1.2em;
-	font-size: 1em;
-	font-weight: 500;
-	font-family: inherit;
-	background-color: #1a1a1a;
-	cursor: pointer;
-	transition: border-color 0.25s;
-}
-button:hover {
-	border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-	outline: 4px auto -webkit-focus-ring-color;
-}
-
+/*
 @media (prefers-color-scheme: light) {
 	:root {
 		color: #213547;
@@ -65,4 +34,61 @@ button:focus-visible {
 	button {
 		background-color: #f9f9f9;
 	}
+} */
+
+/* Убираем белые линии между колонками в AntD Table */
+.ant-table-cell::before {
+  display: none !important;
+}
+
+
+
+h2.ant-typography {
+  color: white !important;
+}
+
+/* Внешняя рамка всей таблицы */
+.ant-descriptions-bordered {
+  border: #293645; /* цвет внешней границы */
+}
+
+/* Лейблы (левая колонка) */
+.ant-descriptions-bordered .ant-descriptions-item-label {
+  border-right: #293645; /* правая граница */
+  border-bottom: #293645; /* нижняя граница */
+}
+
+/* Контент (правая колонка) */
+.ant-descriptions-bordered .ant-descriptions-item-content {
+  border-bottom: #293645; /* нижняя граница */
+}
+
+/* .ant-card-extra {
+  border-top: none !important;
+} */
+
+/* Для всех иконок в Input.Password */
+.ant-input-password-icon {
+    color: #8c8c8c !important;
+}
+
+.ant-input-password-icon:hover {
+    color: #eeeeee !important;
+}
+
+
+/* Стили для иконок в DatePicker */
+.ant-picker .ant-picker-suffix,
+.ant-picker .ant-picker-clear {
+    color: #8c8c8c !important;
+}
+
+/* При наведении */
+.ant-picker:hover .ant-picker-suffix {
+    color: #eeeeee !important;
+}
+
+/* При фокусе */
+.ant-picker-focused .ant-picker-suffix {
+    color: #eeeeee !important;
 }

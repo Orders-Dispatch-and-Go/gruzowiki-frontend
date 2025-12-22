@@ -1,0 +1,13 @@
+/* src/components/AuthCard.module.css */
+.authCard {
+  width: 100%;
+  max-width: 420px;
+  min-width: 320px;
+  background-color: #212D3B;
+  border: none;
+}
+/* 
+/* ВАЖНО: тело карточки */
+ .authCard :global(.ant-card-body) {
+  background-color: #212D3B;
+}

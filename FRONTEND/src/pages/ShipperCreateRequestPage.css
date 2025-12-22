@@ -1,0 +1,51 @@
+.ant-card-body {
+    background-color: #293645;
+}
+
+.ant-input,
+.ant-input-number,
+.ant-picker,
+.ant-select-selector,
+.ant-input-number-input,
+.ant-input-affix-wrapper {
+    background-color: #293645 !important;
+    color: #fff !important;
+    border-color: #3a4a5e !important;
+}
+
+.ant-input::placeholder {
+    color: #9aa4b2;
+}
+
+/* placeholder у DatePicker */
+.ant-picker-input > input::placeholder {
+    color: #9aa4b2 !important;
+    opacity: 1;
+}
+
+
+.ant-form-item-label > label {
+    color: #fff;
+}
+
+
+/* все label'ы Form.Item */
+.ant-form-item-label > label,
+.ant-form-item-label > label span {
+    color: #ffffff !important;
+}
+
+/* звездочка обязательного поля */
+.ant-form-item-label > label.ant-form-item-required::before {
+    color: #ff7875;
+}
+
+/* label у Form.Item без name (например "Габариты") */
+.ant-form-item-label {
+    color: #ffffff;
+}
+
+/* для х/500 (внизу ввода описания груза) */
+.ant-input-data-count {
+    color: #9aa4b2 !important; 
+}

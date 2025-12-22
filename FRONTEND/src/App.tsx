@@ -1,35 +1,76 @@
-import { useState } from "react";
-import viteLogo from "/vite.svg";
-import reactLogo from "./assets/react.svg";
-import "./App.css";
+// src/App.tsx
+import React from "react";
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+} from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import { RequireAuth } from "./components/RequireAuth";
+import HomeRedirect from "./components/HomeRedirect";
+import AuthLayout from "./layout/AuthLayout";
+import RegisterPage from "./pages/RegisterPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ShipperMainPage from "./pages/ShipperMainPage";
+import MainLayout from "./layout/MainLayout";
+import ShipperProfilePage from "./pages/ShipperProfilePage";
+import ShipperCreateRequestPage from "./pages/ShipperCreateRequestPage";
+import RequestCreatedPage from "./pages/ShipperRequestCreatedPage";
+import ConsignerPlaceholderPage from "./pages/ConsignerPlaceholderPage";
+import 'leaflet/dist/leaflet.css';
 
-function App() {
-	const [count, setCount] = useState(0);
 
-	return (
-		<>
-			<div>
-				<a href="https://vite.dev" target="_blank" rel="noopener">
-					<img src={viteLogo} className="logo" alt="Vite logo" />
-				</a>
-				<a href="https://react.dev" target="_blank" rel="noopener">
-					<img src={reactLogo} className="logo react" alt="React logo" />
-				</a>
-			</div>
-			<h1>Vite + React</h1>
-			<div className="card">
-				<button type="button" onClick={() => setCount((count) => count + 1)}>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<p className="read-the-docs">
-				Click on the Vite and React logos to learn more
-			</p>
-		</>
-	);
+export default function App(): React.JSX.Element {
+    return (
+        <Router>
+            <Routes>
+                {/* Автоматический редирект с / на /login */}
+                <Route path="/" element={<HomeRedirect />} />
+
+                <Route element={<AuthLayout />}>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route
+                        path="/forgot-password"
+                        element={<ForgotPasswordPage />}
+                    />
+                    <Route path="/register" element={<RegisterPage />} />
+                </Route>
+
+                
+                {/* Маршруты для грузоотправителя */}
+                <Route
+                    path="/shipper"
+                    element={
+                        <RequireAuth>
+                            <MainLayout />
+                        </RequireAuth>
+                    }
+                >
+                    <Route path="home" element={<ShipperMainPage />} />
+                    <Route path="profile" element={<ShipperProfilePage />} />
+                    <Route path="create-request" element={<ShipperCreateRequestPage />} />
+                    <Route path="request/success/:id" element={<RequestCreatedPage />} />
+
+                    {/* Здесь будут другие маршруты грузоотправителя */}
+                </Route>
+
+                {/* Маршруты для грузоперевозчика */}
+                <Route
+                    path="/carrier"
+                    element={
+                        <RequireAuth>
+                            <MainLayout />
+                        </RequireAuth>
+                    }
+                >
+                    <Route path="home" element={<ConsignerPlaceholderPage />} />
+                    {/* Здесь будут другие маршруты грузоотправителя */}
+                </Route>
+
+
+                {/* Запасной маршрут */}
+                <Route path="*" element={<HomeRedirect />} />
+            </Routes>
+        </Router>
+    );
 }
-
-export default App;
