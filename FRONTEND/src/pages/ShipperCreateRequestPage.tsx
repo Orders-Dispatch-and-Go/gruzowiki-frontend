@@ -442,6 +442,11 @@ const ShipperCreateRequestPage: React.FC = () => {
         );
     }
 
+    const CARGO_TYPE_MAP: Record<string, string> = {
+        type1: "Обычный",
+        fragile: "Хрупкий",
+    };
+
     return (
         <Layout style={{ background: "#212D3B" }}>
             <Content
@@ -849,7 +854,7 @@ const ShipperCreateRequestPage: React.FC = () => {
                                                 )
                                             }
                                             min={1}
-                                            max={1000}
+                                            max={100000}
                                             style={{ width: "100%" }}
                                             placeholder="Вес"
                                         />
@@ -865,12 +870,26 @@ const ShipperCreateRequestPage: React.FC = () => {
                                     }
                                     style={{ width: "100%" }}
                                 >
-                                    {cargoTypes.map((type) => (
+                                    {/* {cargoTypes.map((type) => (
                                         <Option key={type.id} value={type.id}>
                                             {type.type}{" "}
-                                            {/* {type.fragile ? "(Хрупкий)" : ""} */}
                                         </Option>
-                                    ))}
+                                    ))} */}
+                                    {cargoTypes.map((type) => {
+                                        const baseName =
+                                            CARGO_TYPE_MAP[type.type] ||
+                                            type.type;
+                                        const displayName = baseName;
+
+                                        return (
+                                            <Option
+                                                key={type.id}
+                                                value={type.id}
+                                            >
+                                                {displayName}
+                                            </Option>
+                                        );
+                                    })}
                                 </Select>
                             </Form.Item>
                         </Space>

@@ -66,3 +66,29 @@ h2.ant-typography {
 /* .ant-card-extra {
   border-top: none !important;
 } */
+
+/* Для всех иконок в Input.Password */
+.ant-input-password-icon {
+    color: #8c8c8c !important;
+}
+
+.ant-input-password-icon:hover {
+    color: #eeeeee !important;
+}
+
+
+/* Стили для иконок в DatePicker */
+.ant-picker .ant-picker-suffix,
+.ant-picker .ant-picker-clear {
+    color: #8c8c8c !important;
+}
+
+/* При наведении */
+.ant-picker:hover .ant-picker-suffix {
+    color: #eeeeee !important;
+}
+
+/* При фокусе */
+.ant-picker-focused .ant-picker-suffix {
+    color: #eeeeee !important;
+}
